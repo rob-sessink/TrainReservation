@@ -7,4 +7,6 @@ open System.IO
 let readFixture relativePath =
     let content = File.ReadAllText(relativePath)
 
-    if content.EndsWith "\n" then content.TrimEnd('\n') else content
+    if content.EndsWith System.Environment.NewLine
+    then content.TrimEnd(char System.Environment.NewLine)
+    else content

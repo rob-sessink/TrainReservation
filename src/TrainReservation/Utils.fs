@@ -8,8 +8,7 @@ open System.IO
 ///       | EmptySeq -> "empty"
 ///       | _ -> "not empty"
 /// </code>
-let (|EmptySeq|_|) a =
-    if Seq.isEmpty a then Some() else None
+let (|EmptySeq|_|) a = if Seq.isEmpty a then Some() else None
 
 /// <summary>Return contents of a fixture as string. Ending newline is stripped of</summary>
 /// <param name="relativePath">relative path to fixture from project root</param>
@@ -17,10 +16,11 @@ let (|EmptySeq|_|) a =
 let readFile relativePath =
     let content = File.ReadAllText(relativePath)
 
-    if content.EndsWith "\n" then content.Trim('\n') else content
+    if content.EndsWith System.Environment.NewLine
+    then content.Trim(char System.Environment.NewLine)
+    else content
 
 /// <summary>Use in combination with below 'is' function to determine if an object 'is of Type x'</summary>
 /// <code>is (function Available -> true | _ -> false) obj</code>
 /// https://stackoverflow.com/questions/13070487/f-use-generic-type-as-pattern-discriminator
-let is cond item =
-    if cond item then true else false
+let is cond item = if cond item then true else false
