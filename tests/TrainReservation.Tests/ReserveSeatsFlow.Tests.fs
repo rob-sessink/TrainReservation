@@ -13,34 +13,37 @@ type ``ReserveSeats Flow Scenario Tests against mocked data services``() =
         { TrainId = "local_1000"
           SeatCount = 1 }
 
-    let reserved_a1 =
-        { SeatId = SeatId "1A"
-          SeatDetail =
-              { Coach = "A"
-                SeatNumber = "1"
-                BookingReference = "" } }
+    let confirmed_reservation =
+        let bookingId =
+            (System.DateTime.Now.ToString "yyyy-MM-dd")
+            + "-local_1000-1A"
+
+        let reserved_a1 =
+            { SeatId = SeatId "1A"
+              SeatDetail =
+                  { Coach = "A"
+                    SeatNumber = "1"
+                    BookingReference = bookingId } }
+
+        { TrainId = TrainId "local_1000"
+          BookingId = BookingId bookingId
+          Seats = [ reserved_a1 ] }
 
     let reserveSeat = ComposeReserveSeatsFlow
 
 
     [<Fact>]
-    let ``Confirmed: try reserving seats for an allocatable request and receive confirmation``() =
+    let ``Confirmed: try reserving seats for an allocatable request and receive confirmation`` () =
         let reservation = reserveSeat request
 
-        let bookingId = (System.DateTime.Now.ToString "yyyy-MM-dd") + "-local_1000-1A"
-
-        let expected: ConfirmedReservation =
-            { TrainId = TrainId "local_1000"
-              BookingId = BookingId bookingId
-              Seats = [ reserved_a1 ] }
-
-        reservation <!> (should equal expected)
+        reservation
+        <!> (should equal confirmed_reservation)
 
 
     [<Fact>]
-    let ``NoSeatsAvailable: try reserving seats for an un-allocatable request and receive back an error``() =
+    let ``NoSeatsAvailable: try reserving seats for an un-allocatable request and receive back an error`` () =
         match reserveSeat { request with SeatCount = 100 } with
-        | Error(NoSeatsAvailable _) -> ()
+        | Error (NoSeatsAvailable _) -> ()
         | _ -> failwith "Expected ReservationError.NoSeatsAvailable"
 
 
@@ -55,25 +58,25 @@ type ``ReserveSeats Flow Scenario Tests against mocked data services``() =
     //        | Error (NoCoachAvailable _) -> ()
     //        | _ -> failwith "Expected ReservationError.NoCoachAvailable"
 
+
     [<Fact>]
-    let ``MaximumCapacityReached: try reserving seats for an allocatable request and receive an error``() =
+    let ``MaximumCapacityReached: try reserving seats for an allocatable request and receive an error`` () =
         match reserveSeat { request with TrainId = "inter_3000" } with
-        | Error(MaximumCapacityReached _) -> ()
+        | Error (MaximumCapacityReached _) -> ()
         | _ -> failwith "Expected ReservationError.MaximumCapacityReached"
 
 
     [<Fact>]
-    let ``TrainIdNotFound: try reserving seats for an unknown train``() =
+    let ``TrainIdNotFound: try reserving seats for an unknown train`` () =
         match reserveSeat { request with TrainId = "local_99999" } with
-        | Error(TrainIdNotFound _) -> ()
+        | Error (TrainIdNotFound _) -> ()
         | _ -> failwith "Expected ReservationError.TrainIdNotFound"
 
 
 type ``ReservationRequest Validation Tests``() =
 
-
     [<Fact>]
-    let ``Validate a correct reservation request ``() =
+    let ``Validate a correct reservation request `` () =
         let request: UnvalidatedReservationRequest =
             { TrainId = "local_1000"
               SeatCount = 2 }
@@ -88,23 +91,19 @@ type ``ReservationRequest Validation Tests``() =
 
 
     [<Fact>]
-    let ``Validate an incorrect reservation request with invalid a trainId``() =
-        let request: UnvalidatedReservationRequest =
-            { TrainId = ""
-              SeatCount = 1 }
+    let ``Validate an incorrect reservation request with invalid a trainId`` () =
+        let request: UnvalidatedReservationRequest = { TrainId = ""; SeatCount = 1 }
 
         let result = validateReservationRequest request
 
         let expected =
-            InvalidTrainId
-                ({ TrainId = ""
-                   SeatCount = 1 }, "Train identifier is invalid")
+            InvalidTrainId({ TrainId = ""; SeatCount = 1 }, "Train identifier is invalid")
 
         Result.mapError (should equal expected) result
 
 
     [<Fact>]
-    let ``Validate an incorrect reservation request with zero seats``() =
+    let ``Validate an incorrect reservation request with zero seats`` () =
         let request: UnvalidatedReservationRequest =
             { TrainId = "local_1000"
               SeatCount = 0 }
@@ -114,13 +113,14 @@ type ``ReservationRequest Validation Tests``() =
         let expected =
             (InvalidSeatCount
                 ({ TrainId = "local_1000"
-                   SeatCount = 0 }, "Seat count cannot be zero"))
+                   SeatCount = 0 },
+                 "Seat count cannot be zero"))
 
         Result.mapError (should equal expected) result
 
 
     [<Fact>]
-    let ``Validate an incorrect reservation request with negative seats``() =
+    let ``Validate an incorrect reservation request with negative seats`` () =
         let request: UnvalidatedReservationRequest =
             { TrainId = "local_1000"
               SeatCount = -1 }
@@ -130,6 +130,7 @@ type ``ReservationRequest Validation Tests``() =
         let expected =
             (InvalidSeatCount
                 ({ TrainId = "local_1000"
-                   SeatCount = -1 }, "Seat count cannot be negative"))
+                   SeatCount = -1 },
+                 "Seat count cannot be negative"))
 
         Result.mapError (should equal expected) result

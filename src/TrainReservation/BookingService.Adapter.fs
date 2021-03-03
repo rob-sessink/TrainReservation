@@ -11,13 +11,18 @@ type AsConfirmedReservation = BookingId -> SeatAllocation -> ConfirmedReservatio
 let asConfirmedReservation: AsConfirmedReservation =
     fun bookingId seatAllocation ->
 
-        // TODO push BookingId into Seats.SeatDetail.BookingReference for consistency.
+        // copy and update bookingId into list [seats].SeatDetail.BookingReference
+        let withBookingId bookingId seats =
+            seats
+            |> List.map (fun seat ->
+                { seat with SeatDetail = { seat.SeatDetail with BookingReference = BookingId.value bookingId } })
+
         { TrainId = seatAllocation.TrainId
           BookingId = bookingId
-          Seats = seatAllocation.Seats }
+          Seats = (withBookingId bookingId seatAllocation.Seats) }
 
 ///<summary>Service to provide booking references for reservation. Dummy implementation of the booking reference
-/// adapter of a service with all parameters</summary>
+/// adapter</summary>
 /// <param name="url">of service endpoint</param>
 /// <param name="seatAllocation">for which a booking reference should be provided</param>
 /// <returns>ConfirmedReservation</returns>
