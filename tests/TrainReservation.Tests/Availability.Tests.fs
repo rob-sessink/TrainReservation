@@ -8,7 +8,6 @@ open FsUnit.Xunit
 
 type ``Capacity Tests``() =
 
-
     [<Fact>]
     let ``Calculate capacity when 67% allocated and 70% capacity``() =
 
@@ -22,7 +21,6 @@ type ``Capacity Tests``() =
               UnitTotal = 30 }
 
         capacity |> should equal expected
-
 
 
     [<Fact>]
@@ -70,7 +68,6 @@ type ``Capacity Tests``() =
         capacity |> should equal expected
 
 
-
     [<Fact>]
     let ``Calculate capacity when 60% allocated and 50% capacity``() =
 
@@ -86,25 +83,24 @@ type ``Capacity Tests``() =
         capacity |> should equal expected
 
 
-[<Fact>]
-let ``Calculate seating capacity for the overall train``() =
+    [<Fact>]
+    let ``Calculate seating capacity for the overall train``() =
 
-    let trainInformation = to_train "local_1000" seats_allocated_66
+        let trainInformation = to_train "local_1000" seats_allocated_66
 
-    let capacity = calculateTrainCapacity standard_allocation_settings trainInformation
+        let capacity = calculateTrainCapacity standard_allocation_settings trainInformation
 
-    let expected =
-        { Current = Percentage 67m
-          MaximumAllowed = Percentage 70m
-          Allocatable = Percentage 3m
-          UnitAllocatable = 0
-          UnitTotal = 3 }
+        let expected =
+            { Current = Percentage 67m
+              MaximumAllowed = Percentage 70m
+              Allocatable = Percentage 3m
+              UnitAllocatable = 0
+              UnitTotal = 3 }
 
-    capacity |> should equal expected
+        capacity |> should equal expected
 
 
 type ``Train Availability Tests``() =
-
 
     [<Fact>]
     let ``Calculate seating capacity per coach for a train``() =
@@ -131,8 +127,6 @@ type ``Train Availability Tests``() =
 
 
         capacities |> should equal expected
-
-
 
 
     [<Fact>]
