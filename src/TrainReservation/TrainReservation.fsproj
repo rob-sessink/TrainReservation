@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <TargetFramework>net5.0</TargetFramework>
+        <OutputType>Exe</OutputType>
+        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+        <GenerateProgramFile>false</GenerateProgramFile>
+        <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
+    </PropertyGroup>
+    <PropertyGroup>
+        <Title>TrainReservation</Title>
+        <Description>TrainReservation does the thing!</Description>
+    </PropertyGroup>
+    <PropertyGroup Condition="'$(Configuration)'=='Release'">
+        <Optimize>false</Optimize>
+        <Tailcalls>true</Tailcalls>
+    </PropertyGroup>
+    <ItemGroup>
+        <PackageReference Include="Giraffe" Version="4.1.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
+        <PackageReference Include="Thoth.Json.Net" Version="5.0.0" />
+    </ItemGroup>
+    <ItemGroup>
+        <Compile Include="Utils.fs" />
+        <Compile Include="Reservation.Types.fs" />
+        <Compile Include="Availability.fs" />
+        <Compile Include="Allocation.fs" />
+        <Compile Include="BookingService.Adapter.fs" />
+        <Compile Include="TrainDataService.Adapter.fs" />
+        <Compile Include="ReserveSeatsFlow.fs" />
+        <Compile Include="ResetReservationFlow.fs" />
+        <Compile Include="TicketOffice.Controller.fs" />
+        <Compile Include="Root.fs" />
+        <Compile Include="TicketOffice.WebApp.fs" />
+        <Compile Include="AssemblyInfo.fs" />
+        <Compile Include="Program.fs" />  
+    </ItemGroup>
+    <ItemGroup>
+        <Content Include="data\trains.json">
+          <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+        <Content Include="TODO.md" />
+    </ItemGroup>
+    <Import Project="..\..\.paket\Paket.Restore.targets" />
+</Project>

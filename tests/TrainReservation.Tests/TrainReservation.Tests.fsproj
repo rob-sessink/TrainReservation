@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<Project Sdk="Microsoft.NET.Sdk">
+    <PropertyGroup>
+        <OutputType>Library</OutputType>
+        <TargetFramework>net5.0</TargetFramework>
+        <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    </PropertyGroup>
+    <ItemGroup>
+        <Compile Include="Fixtures.fs" />
+        <Compile Include="Availability.Fixtures.fs" />
+        <Compile Include="Availability.Tests.fs" />
+        <Compile Include="Allocation.Tests.fs" />
+        <Compile Include="BookingService.Adapter.Tests.fs" />
+        <Compile Include="TrainDataService.Adapter.Tests.fs" />
+        <Compile Include="ReserveSeatsFlow.Tests.fs" />
+        <Compile Include="TicketOffice.Controller.Tests.fs" />
+        <Content Include="fixtures/*">
+            <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+        </Content>
+    </ItemGroup>
+    <ItemGroup>
+        <ProjectReference Include="../../src/TrainReservation/TrainReservation.fsproj" />
+    </ItemGroup>
+    <ItemGroup>
+        <PackageReference Include="FsUnit.xUnit" Version="4.0.4" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
+        <PackageReference Include="xunit" Version="2.4.1" />
+        <PackageReference Include="xunit.runner.visualstudio" Version="2.4.3">
+          <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
+          <PrivateAssets>all</PrivateAssets>
+        </PackageReference>
+    </ItemGroup>
+    <Import Project="..\..\.paket\Paket.Restore.targets" />
+</Project>
