@@ -113,18 +113,17 @@ type ValidReservationRequest =
     { TrainId: TrainId
       SeatCount: int }
 
-// TODO do we build the error string in the module of in the error handler based on the type
 type ReservationError =
-    | InvalidRequest of string
-    | InvalidTrainId of UnvalidatedReservationRequest * string
-    | InvalidSeatCount of UnvalidatedReservationRequest * string
-    | TrainIdNotFound of ValidReservationRequest * string
-    | InvalidTrainInformation of string
+    | InvalidRequest of message: string
+    | InvalidTrainId of UnvalidatedReservationRequest * message: string
+    | InvalidSeatCount of UnvalidatedReservationRequest * message: string
+    | TrainIdNotFound of ValidReservationRequest * message: string
+    | InvalidTrainInformation of message: string
     //| BookingServiceUnavailable of string
     //| TrainDataServiceUnavailable of string
-    | NoSeatsAvailable of ValidReservationRequest * Availability
-    | NoCoachAvailable of ValidReservationRequest
-    | MaximumCapacityReached of ValidReservationRequest * Availability
+    | NoSeatsAvailable of ValidReservationRequest * trainCapacity: Availability
+    | NoCoachAvailable of ValidReservationRequest // could pass along trainCapacity
+    | MaximumCapacityReached of ValidReservationRequest * trainCapacity: Availability
 
 // Unvalidated request to reset all reservations for a train, as received from an operator
 type UnvalidatedResetReservationsRequest =

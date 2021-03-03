@@ -125,9 +125,7 @@ let groupedPerCoachAllotment: AllotmentStrategy =
             |> List.tryHead
 
         match firstAvailable with
-        | None ->
-            Error
-                (NoCoachAvailable(request)) //TODO use in error handling $"No coach is available capable of accommodating {request.SeatCount} seats")
+        | None -> Error(NoCoachAvailable(request))
         | Some coach ->
             trainInformation.Seats
             |> availableSeatsForCoach (fst coach)
