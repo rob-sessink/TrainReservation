@@ -6,7 +6,6 @@
         <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <GenerateProgramFile>false</GenerateProgramFile>
-        <RuntimeIdentifier>linux-x64</RuntimeIdentifier>
     </PropertyGroup>
     <PropertyGroup>
         <Title>TrainReservation</Title>
