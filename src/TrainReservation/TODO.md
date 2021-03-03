@@ -53,3 +53,9 @@ In ReserveSeatsFlow use FsToolkit.ErrorHandling Trail computational expression f
 For the TrainDataService use an in-memory database, initialized on startup
 
 https://www.planetgeek.ch/2020/12/04/our-journey-to-f-persistency/
+
+# Build Process
+
+Fix running of fsharp-analyzers in build.fsx
+
+//    ==> "FSharpAnalyzers" disable because of Unhandled exception. System.InvalidOperationException: The input list was empty.

@@ -610,7 +610,7 @@ Target.create "Release" ignore
 
 "DotnetRestore"
     ==> "DotnetBuild"
-    ==> "FSharpAnalyzers"
+//    ==> "FSharpAnalyzers" disable because of Unhandled exception. System.InvalidOperationException: The input list was empty.
     ==> "DotnetTest"
     =?> ("GenerateCoverageReport", not disableCodeCoverage)
     ==> "CreatePackages"
