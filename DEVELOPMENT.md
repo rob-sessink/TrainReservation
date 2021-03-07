@@ -47,7 +47,9 @@ paket add Thoth.Json.Net -> give an error: 'invalid parameter 'net50' after >= o
     dotnet add src/TrainReservatio package Microsoft.AspNetCore.App
     dotnet add src/TrainReservatio package Giraffe
 
+### Giraffe HttpHandler testing
 
+    dotnet add tests/TrainReservation.Tests package NSubstitute
 
 ## Thoth Development
 

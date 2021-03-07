@@ -34,7 +34,7 @@ let configureLogging (builder: ILoggingBuilder) =
 
 let configureServices (services: IServiceCollection) = services.AddGiraffe() |> ignore
 
-let server =
+let server () =
     Host.CreateDefaultBuilder()
         .ConfigureWebHostDefaults(fun webHost ->
         webHost.Configure(configureApp).ConfigureServices(configureServices) |> ignore).Build().Run()

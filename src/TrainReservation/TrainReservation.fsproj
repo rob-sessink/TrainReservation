@@ -23,6 +23,7 @@
     <ItemGroup>
         <Compile Include="Utils.fs" />
         <Compile Include="Reservation.Types.fs" />
+        <Compile Include="Reservation.Api.Types.fs" />
         <Compile Include="Availability.fs" />
         <Compile Include="Allocation.fs" />
         <Compile Include="BookingService.Adapter.fs" />
