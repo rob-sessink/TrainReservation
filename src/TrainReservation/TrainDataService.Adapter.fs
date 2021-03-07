@@ -88,7 +88,7 @@ let provideTrainSeatingInformation url: ProvideTrainSeatingInformation =
         | Error e -> Error(InvalidTrainInformation $"Failure retrieving train information: {e}")
         | Ok trains ->
             match filterTrain request.TrainId trains with
-            | [] -> Error(TrainIdNotFound(request, $"Train information for train: {TrainId.value request.TrainId} was not found"))
+            | [] -> Error(TrainIdNotFound(request, $"Train information for train: {request.TrainId.Value} was not found"))
             | x :: _ -> Ok x
 
 

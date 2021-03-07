@@ -16,17 +16,17 @@ let (<!>) x fn = Result.map fn x
 // Train Identifier
 type TrainId =
     | TrainId of string
-    static member value (TrainId id) = id
+    member this.Value = this |> fun (TrainId id) -> id
 
 // Seat Identifier
 type SeatId =
     | SeatId of string
-    static member value (SeatId id) = id
+    member this.Value = this |> fun (SeatId id) -> id
 
 // Booking Identifier
 type BookingId =
     | BookingId of string
-    static member value (BookingId id) = id
+    member this.Value = this |> fun (BookingId id) -> id
 
 /// Individual seat and reservation details
 type SeatDetail =
@@ -41,15 +41,13 @@ type Seat =
 
 // Type containing all seating information for a train as provided via the TrainDataService. The information is used
 // in seating allotment and reservations
-type TrainInformation =
-    { TrainId: TrainId
-      Seats: Seat list }
+type TrainInformation = { TrainId: TrainId; Seats: Seat list }
 
 /// ---------------------------------------------------------------------------
 /// Allocation, Capacity and Reservation Types
 type Percentage =
     | Percentage of decimal
-    static member value (Percentage id) = id
+    static member value(Percentage id) = id
 
 // Type containing the current, allowed and allocatable capacity of an object in percentages and units
 type Capacity =
@@ -77,14 +75,10 @@ type AllocationSettings =
       Allotment: AllotmentStrategy }
 
 // Current Capacity of a Coach
-type CoachCapacity =
-    { Coach: string
-      Capacity: Capacity }
+type CoachCapacity = { Coach: string; Capacity: Capacity }
 
 // An allocation of seats on a train from which a confirmed reservation is created
-type SeatAllocation =
-    { TrainId: TrainId
-      Seats: Seat list }
+type SeatAllocation = { TrainId: TrainId; Seats: Seat list }
 
 // Confirmed reservation of seats on a train. This confirmation is communicated back to the customer
 type ConfirmedReservation =
@@ -104,14 +98,10 @@ type Reservation =
 /// Command Types
 
 // Unvalidated request for reservation received from a customer. Defined using primitive data-types
-type UnvalidatedReservationRequest =
-    { TrainId: string
-      SeatCount: int }
+type UnvalidatedReservationRequest = { TrainId: string; SeatCount: int }
 
 // Validated request for reservation to-be fulfilled by the ticket office
-type ValidReservationRequest =
-    { TrainId: TrainId
-      SeatCount: int }
+type ValidReservationRequest = { TrainId: TrainId; SeatCount: int }
 
 type ReservationError =
     | InvalidRequest of message: string
@@ -126,12 +116,10 @@ type ReservationError =
     | MaximumCapacityReached of ValidReservationRequest * trainCapacity: Availability
 
 // Unvalidated request to reset all reservations for a train, as received from an operator
-type UnvalidatedResetReservationsRequest =
-    { TrainId: string }
+type UnvalidatedResetReservationsRequest = { TrainId: string }
 
 // Validated request to reset all reservations for a train to-be executed by the ticket office
-type ValidResetReservationsRequest =
-    { TrainId: TrainId }
+type ValidResetReservationsRequest = { TrainId: TrainId }
 
 /// ---------------------------------------------------------------------------
 /// Core Flows offered by the Application

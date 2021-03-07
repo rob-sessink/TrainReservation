@@ -26,11 +26,11 @@ let decodeRequest json =
 /// <param name="reservation">to encode</param>
 /// <returns>json</returns>
 let encodeReservation (reservation: ConfirmedReservation) =
-    Encode.object [ "train_id", Encode.string (TrainId.value reservation.TrainId)
-                    "booking_reference", Encode.string (BookingId.value reservation.BookingId)
+    Encode.object [ "train_id", Encode.string (reservation.TrainId.Value)
+                    "booking_reference", Encode.string (reservation.BookingId.Value)
                     "seats",
                     reservation.Seats
-                    |> List.map (fun s -> SeatId.value s.SeatId |> Encode.string)
+                    |> List.map (fun s -> s.SeatId.Value |> Encode.string)
                     |> Encode.list ]
     |> Encode.toString 0
 

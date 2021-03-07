@@ -12,10 +12,13 @@ let asConfirmedReservation: AsConfirmedReservation =
     fun bookingId seatAllocation ->
 
         // copy and update bookingId into list [seats].SeatDetail.BookingReference
-        let withBookingId bookingId seats =
+        let withBookingId (bookingId: BookingId) seats =
             seats
             |> List.map (fun seat ->
-                { seat with SeatDetail = { seat.SeatDetail with BookingReference = BookingId.value bookingId } })
+                { seat with
+                      SeatDetail =
+                          { seat.SeatDetail with
+                                BookingReference = bookingId.Value } })
 
         { TrainId = seatAllocation.TrainId
           BookingId = bookingId
@@ -32,12 +35,13 @@ let bookingReferenceService url: ProvideBookingReference =
         // construct a booking reference in format: [date]-[s1]-[s2]-[sX]
         let reference =
             seatAllocation.Seats
-            |> List.map (fun s -> (SeatId.value s.SeatId))
+            |> List.map (fun s -> (s.SeatId.Value))
             |> List.reduce (fun r s -> r + "-" + s)
 
-        let date = System.DateTime.Now.ToString "yyyy-MM-dd"
+        let date =
+            System.DateTime.Now.ToString "yyyy-MM-dd"
 
-        let trainId = (seatAllocation.TrainId |> TrainId.value)
+        let trainId = (seatAllocation.TrainId.Value)
 
         let bookingReference = date + "-" + trainId + "-" + reference
 
