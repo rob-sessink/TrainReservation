@@ -16,10 +16,6 @@ Use an Error model to return on API:
 
 - implement a simple HTTP client 
 
-# Unit Tests
-
-- add unit tests for HttpHandlers
-
 # Domain Events
 
 1. Add types and module for publication of domain events around reservations

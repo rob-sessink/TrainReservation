@@ -67,13 +67,14 @@ let ``Encode reservation to json`` () =
 [<Fact>]
 let ``POST a reservation request to '/reserve' receiving a confirmed reservation`` () =
 
-    let request: ClientReservationRequest = { trainId = "local_1000"; seats = 1 }
+    let request =
+        Some { trainId = "local_1000"; seats = 1 }
 
-    let context =
+    let ctx =
         buildHandlerContext "POST" "/reserve" request
 
     task {
-        let! result = WebApp.webApp next context
+        let! result = WebApp.webApp next ctx
 
         match result with
         | Some ctx -> ctx.Response.StatusCode |> should equal 200
@@ -83,15 +84,44 @@ let ``POST a reservation request to '/reserve' receiving a confirmed reservation
 [<Fact>]
 let ``POST a invalid reservation request to '/reserve' and receive a bad request error`` () =
 
-    let request: ClientReservationRequest = { trainId = "local_1000"; seats = -1 }
+    let request =
+        Some { trainId = "local_1000"; seats = -1 }
 
-    let context =
+    let ctx =
         buildHandlerContext "POST" "/reserve" request
 
     task {
-        let! result = WebApp.webApp next context
+        let! result = WebApp.webApp next ctx
 
         match result with
         | Some ctx -> ctx.Response.StatusCode |> should equal 400
+        | None -> failwith "Expected a context"
+    }
+
+[<Fact>]
+let ``POST a valid reset reservation request to '/reset' and receive an 200`` () =
+
+    let ctx =
+        buildHandlerContext "POST" "/reset/local_1000" None
+
+    task {
+        let! result = WebApp.webApp next ctx
+
+        match result with
+        | Some ctx -> ctx.Response.StatusCode |> should equal 200
+        | None -> failwith "Expected a context"
+    }
+
+[<Fact>]
+let ``POST a unknown request '/unknown' and receive back an 404`` () =
+
+    let ctx =
+        buildHandlerContext "POST" "/unknown" None
+
+    task {
+        let! result = WebApp.webApp next ctx
+
+        match result with
+        | Some ctx -> ctx.Response.StatusCode |> should equal 404
         | None -> failwith "Expected a context"
     }
