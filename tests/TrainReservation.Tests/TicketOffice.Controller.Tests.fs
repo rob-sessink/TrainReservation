@@ -8,11 +8,6 @@ open TrainReservation.Tests.Fixtures
 open TrainReservation.Tests.HttpContextUtil
 
 open FSharp.Control.Tasks.V2
-open Microsoft.AspNetCore.Http
-open Newtonsoft.Json
-open NSubstitute
-open System.IO
-open System.Text
 
 open FsUnit.Xunit
 open Xunit
@@ -68,32 +63,35 @@ let ``Encode reservation to json`` () =
 
 /// ---------------------------------------------------------------------------
 /// HttpHandler Tests
-///
+
 [<Fact>]
-let ``POST request /reserve process the reservation request`` () =
+let ``POST a reservation request to '/reserve' receiving a confirmed reservation`` () =
 
     let request: ClientReservationRequest = { trainId = "local_1000"; seats = 1 }
 
-    let postData =
-        Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request))
-
-    let context = buildMockContext ()
-    context.Request.Body <- new MemoryStream(postData)
-
-    context.Request.Method.ReturnsForAnyArgs "POST"
-    |> ignore
-
-    context.Request.Path.ReturnsForAnyArgs(PathString("/reserve"))
-    |> ignore
-
-    context.Request.Body <- new MemoryStream(postData)
+    let context =
+        buildHandlerContext "POST" "/reserve" request
 
     task {
         let! result = WebApp.webApp next context
 
         match result with
-        | None -> failwith "Result was expected to be %s"
-        | Some ctx ->
-            getBody ctx
-            |> should haveSubstring "\\\"seats\\\":[\\\"1A\\\"]"
+        | Some ctx -> ctx.Response.StatusCode |> should equal 200
+        | None -> failwith "Expected a context"
+    }
+
+[<Fact>]
+let ``POST a invalid reservation request to '/reserve' and receive a bad request error`` () =
+
+    let request: ClientReservationRequest = { trainId = "local_1000"; seats = -1 }
+
+    let context =
+        buildHandlerContext "POST" "/reserve" request
+
+    task {
+        let! result = WebApp.webApp next context
+
+        match result with
+        | Some ctx -> ctx.Response.StatusCode |> should equal 400
+        | None -> failwith "Expected a context"
     }

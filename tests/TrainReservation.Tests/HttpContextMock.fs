@@ -7,6 +7,10 @@ open Giraffe
 open Giraffe.Serialization
 open Microsoft.AspNetCore.Http
 open NSubstitute
+open Newtonsoft.Json
+
+/// ---------------------------------------------------------------------------
+/// Functions to mock HttpContext for testing of HttpHandler
 
 let next: HttpFunc = Some >> Task.FromResult
 
@@ -38,3 +42,19 @@ let getBody (ctx: HttpContext) =
         new StreamReader(ctx.Response.Body, System.Text.Encoding.UTF8)
 
     reader.ReadToEnd()
+
+let buildHandlerContext (method: string) (path: string) request =
+    let postData =
+        Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(request))
+
+    let context = buildMockContext ()
+    context.Request.Body <- new MemoryStream(postData)
+
+    context.Request.Method.ReturnsForAnyArgs method
+    |> ignore
+
+    context.Request.Path.ReturnsForAnyArgs(PathString(path))
+    |> ignore
+
+    context.Request.Body <- new MemoryStream(postData)
+    context
