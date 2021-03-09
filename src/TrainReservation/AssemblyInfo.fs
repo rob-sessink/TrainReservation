@@ -6,11 +6,11 @@ open System.Reflection
 [<assembly: AssemblyTitle("TrainReservation")>]
 [<assembly: AssemblyProduct("TrainReservation")>]
 [<assembly: AssemblyVersion("0.1.0")>]
-[<assembly: AssemblyMetadata("ReleaseDate", "2017-03-17T00:00:00.0000000")>]
+[<assembly: AssemblyMetadata("ReleaseDate", "2020-02-28T12:00:00.0000000")>]
 [<assembly: AssemblyFileVersion("0.1.0")>]
 [<assembly: AssemblyInformationalVersion("0.1.0")>]
 [<assembly: AssemblyMetadata("ReleaseChannel", "release")>]
-[<assembly: AssemblyMetadata("GitHash", "b385af579477bb585016a6b5204121de4a485dac")>]
+[<assembly: AssemblyMetadata("GitHash", "16fe5a31f19bc14ad208e4be71084b4ab89112b")>]
 do ()
 
 module internal AssemblyVersionInformation =
@@ -24,7 +24,7 @@ module internal AssemblyVersionInformation =
     let AssemblyVersion = "0.1.0"
 
     [<Literal>]
-    let AssemblyMetadata_ReleaseDate = "2017-03-17T00:00:00.0000000"
+    let AssemblyMetadata_ReleaseDate = "2020-02-28T12:00:00.0000000"
 
     [<Literal>]
     let AssemblyFileVersion = "0.1.0"
@@ -37,4 +37,4 @@ module internal AssemblyVersionInformation =
 
     [<Literal>]
     let AssemblyMetadata_GitHash =
-        "b385af579477bb585016a6b5204121de4a485dac"
+        "16fe5a31f19bc14ad208e4be71084b4ab89112b"
