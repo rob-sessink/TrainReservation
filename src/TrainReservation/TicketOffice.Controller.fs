@@ -18,9 +18,8 @@ let reservationRequestDecoder: Decoder<UnvalidatedReservationRequest> =
           SeatCount = get.Required.Field "seats" Decode.int })
 
 let decodeRequest json =
-    match Decode.fromString reservationRequestDecoder json with
-    | Ok r -> Ok r
-    | Error e -> Error(InvalidRequest $"Invalid reservation request: {e}")
+    Decode.fromString reservationRequestDecoder json
+    |> Result.mapError (fun e -> InvalidRequest $"Invalid reservation request: {e}")
 
 /// <summary>Try encoding a reservation into a json string</summary>
 /// <param name="reservation">to encode</param>
@@ -34,8 +33,10 @@ let encodeReservation (reservation: ConfirmedReservation) =
                     |> Encode.list ]
     |> Encode.toString 0
 
-
-let errorMapper error =
+/// <summary>Map a ReservationError to corresponding HTTP status</summary>
+/// <param name="error">to map</param>
+/// <returns>Http status and with error message</returns>
+let asHttpError error =
     match error with
     | InvalidRequest e -> RequestErrors.BAD_REQUEST e
     | InvalidTrainId (_, e) -> RequestErrors.BAD_REQUEST e
@@ -47,6 +48,10 @@ let errorMapper error =
     | MaximumCapacityReached _ -> ServerErrors.INTERNAL_ERROR "Maximum train capacity reached, no more seats available."
 
 /// <summary>Handler for the reservation request</summary>
+/// <param name="reserveSeats">workflow handling the request</param>
+/// <param name="next">HTTP middleware function</param>
+/// <param name="ctx">of the HTTP request</param>
+/// <returns>ConfirmedReservation or an error Json representation</returns>
 let reservationHandler (reserveSeats: ReserveSeatsFlow): HttpHandler =
     fun (next: HttpFunc) (ctx: HttpContext) ->
         task {
@@ -55,11 +60,16 @@ let reservationHandler (reserveSeats: ReserveSeatsFlow): HttpHandler =
 
             return!
                 match reservation with
-                | Error e -> (errorMapper e) next ctx
+                | Error e -> (asHttpError e) next ctx
                 | Ok r -> Successful.OK (encodeReservation r) next ctx
         }
 
 /// <summary>Handler to reset all reservations for a train</summary>
+/// <param name="resetReservations">workflow handling the request</param>
+/// <param name="trainId">to reset reservations for</param>
+/// <param name="next">HTTP middleware function</param>
+/// <param name="ctx">of the HTTP request</param>
+/// <returns>Ok</returns>
 let resetHandler (resetReservations: ResetReservationsFlow) (trainId: string): HttpHandler =
     fun (next: HttpFunc) (ctx: HttpContext) ->
         task {
