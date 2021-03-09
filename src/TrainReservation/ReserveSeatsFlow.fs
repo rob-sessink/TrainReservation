@@ -12,28 +12,26 @@ let validateReservationRequest: ValidateReservationRequest =
     fun request ->
 
         // Push as into constrained type with applicative error handling?
-        let validateTrainId (request: UnvalidatedReservationRequest) =
-            match request.TrainId with
-            | t when t.Length < 5 -> Error(InvalidTrainId(request, "Train identifier is invalid"))
-            | _ -> Ok request
+        let validateTrainId (req: UnvalidatedReservationRequest) =
+            match req.TrainId with
+            | t when t.Length < 5 -> Error(InvalidTrainId(req, "Train identifier is invalid"))
+            | _ -> Ok req
 
-        let validateSeatCount (request: UnvalidatedReservationRequest) =
-            match request.SeatCount with
-            | c when c < 0 -> Error(InvalidSeatCount(request, "Seat count cannot be negative"))
-            | c when c = 0 -> Error(InvalidSeatCount(request, "Seat count cannot be zero"))
-            | _ -> Ok(request)
+        let validateSeatCount (req: UnvalidatedReservationRequest) =
+            match req.SeatCount with
+            | c when c < 0 -> Error(InvalidSeatCount(req, "Seat count cannot be negative"))
+            | c when c = 0 -> Error(InvalidSeatCount(req, "Seat count cannot be zero"))
+            | _ -> Ok(req)
 
-        let validate request =
-            request
-            |> validateTrainId
-            >>= validateSeatCount
+        let asValidReservationRequest (req: UnvalidatedReservationRequest) =
+            Ok
+                { TrainId = TrainId req.TrainId
+                  SeatCount = req.SeatCount }
 
-        match validate request with
-        | Error e -> Error e
-        | Ok v ->
-            Result.Ok
-                { TrainId = TrainId v.TrainId
-                  SeatCount = v.SeatCount }
+        request
+        |> validateTrainId
+        >>= validateSeatCount
+        >>= asValidReservationRequest
 
 
 /// Type containing all service dependencies
