@@ -1,6 +1,6 @@
 module TrainReservation.Program
 
-open TrainReservation.TicketOffice.WebApp
+open TrainReservation.TicketOffice
 
 open System.Reflection
 
@@ -30,11 +30,11 @@ module AssemblyInfo =
 
     let assembly = lazy (Assembly.GetEntryAssembly())
 
-    let printVersion() =
+    let printVersion () =
         let version = assembly.Force().GetName().Version
         printfn "%A" version
 
-    let printInfo() =
+    let printInfo () =
         let assembly = assembly.Force()
         let name = assembly.GetName()
         let version = assembly.GetName().Version
@@ -59,13 +59,14 @@ module Main =
 
     [<EntryPoint>]
     let main (argv: string array) =
-        let parser = ArgumentParser.Create<CLIArguments>(programName = "TrainReservation")
+        let parser =
+            ArgumentParser.Create<CLIArguments>(programName = "TrainReservation")
 
         let results = parser.Parse(argv)
 
-        if results.Contains Version then AssemblyInfo.printVersion()
-        elif results.Contains Info then AssemblyInfo.printInfo()
-        elif results.Contains Run then server |> ignore
+        if results.Contains Version then AssemblyInfo.printVersion ()
+        elif results.Contains Info then AssemblyInfo.printInfo ()
+        elif results.Contains Run then WebApp.server () |> ignore
         else parser.PrintUsage() |> printfn "%s"
 
         0
