@@ -1,19 +1,13 @@
 namespace TrainReservation.Tests.TicketOffice
 
-module Controller =
+open TrainReservation.Tests.Fixtures
+open FsUnit.Xunit
+open Xunit
 
-    open TrainReservation.ApiTypes
+module Decoder =
+
+    open TrainReservation.TicketOffice.Decoder
     open TrainReservation.Types
-    open TrainReservation.TicketOffice
-    open TrainReservation.TicketOffice.Controller
-    open TrainReservation.Tests.Fixtures
-    open TrainReservation.Tests.HttpContextUtil
-
-    open FSharp.Control.Tasks.V2
-
-    open FsUnit.Xunit
-    open Xunit
-
 
     /// ---------------------------------------------------------------------------
     /// Thoth Decoder/Encoder Tests
@@ -33,6 +27,10 @@ module Controller =
         unvalidatedReservationRequest
         |> should equal expected
 
+module Encoder =
+
+    open TrainReservation.TicketOffice.Encoder
+    open TrainReservation.Types
 
     [<Fact>]
     let ``Encode reservation to json`` () =
@@ -63,8 +61,15 @@ module Controller =
         json |> should equal expected
 
 
+module Controller =
+
+    open TrainReservation.ApiTypes
+    open TrainReservation.TicketOffice
+    open TrainReservation.Tests.HttpContextUtil
+    open FSharp.Control.Tasks.V2
+
     /// ---------------------------------------------------------------------------
-/// HttpHandler Tests
+    /// HttpHandler Tests
 
     [<Fact>]
     let ``POST a reservation request to '/reserve' receiving a confirmed reservation`` () =

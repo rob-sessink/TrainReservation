@@ -42,7 +42,6 @@ module ReserveSeatsFlow =
           ProvideBookingReference: ProvideBookingReference
           UpdateTrainSeatingInformation: UpdateTrainSeatingInformation }
 
-
     /// <summary>Reserve seats on a train</summary>
     /// <param name="io">service dependencies</param>
     /// <param name="unvalidatedRequest">for seat reservation to-be </param>

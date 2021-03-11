@@ -1,13 +1,11 @@
 namespace TrainReservation.TicketOffice
 
-module Controller =
+open Microsoft.AspNetCore.Http
+open TrainReservation.Types
 
-    open TrainReservation.ApiTypes
-    open TrainReservation.Types
-    open Microsoft.AspNetCore.Http
+module Decoder =
+
     open Thoth.Json.Net
-    open Giraffe
-    open FSharp.Control.Tasks.V2.ContextInsensitive
 
     /// <summary>Decoder of a reservation request</summary>
     /// <returns>UnvalidatedReservationRequest</returns>
@@ -23,6 +21,12 @@ module Controller =
     let decodeRequest json =
         Decode.fromString reservationRequestDecoder json
         |> Result.mapError (fun e -> InvalidRequest $"Invalid reservation request: {e}")
+
+
+module Encoder =
+
+    open TrainReservation.ApiTypes
+    open Thoth.Json.Net
 
     /// <summary>Try encoding a reservation into a json string</summary>
     /// <param name="reservation">to encode</param>
@@ -52,6 +56,14 @@ module Controller =
         | NoCoachAvailable _ -> Error.build 500 "No coach available to accomodate all seats."
         | MaximumCapacityReached _ -> Error.build 500 "Maximum train capacity reached, no more seats available."
         <| ctx.Request.Path.ToString()
+
+
+module Controller =
+
+    open Decoder
+    open Encoder
+    open Giraffe
+    open FSharp.Control.Tasks.V2.ContextInsensitive
 
     /// <summary>Handler for the reservation request</summary>
     /// <param name="reserveSeats">workflow handling the request</param>

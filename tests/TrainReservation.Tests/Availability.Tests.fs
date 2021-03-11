@@ -1,13 +1,12 @@
 namespace TrainReservation.Tests
 
-module Availability =
+open Xunit
+open FsUnit.Xunit
 
-    open TrainReservation.Tests.AvailabilityFixtures
-    open TrainReservation.Availability
-    open TrainReservation.Capacity
+module Capacity =
+
     open TrainReservation.Types
-    open Xunit
-    open FsUnit.Xunit
+    open TrainReservation.Capacity
 
     type ``Capacity Tests``() =
 
@@ -90,6 +89,14 @@ module Availability =
             capacity |> should equal expected
 
 
+module Availability =
+
+    open TrainReservation.Tests.AvailabilityFixtures
+    open TrainReservation.Availability
+    open TrainReservation.Types
+
+    type ``Train Availability Tests``() =
+
         [<Fact>]
         let ``Calculate seating capacity for the overall train`` () =
 
@@ -106,9 +113,6 @@ module Availability =
                   UnitTotal = 3 }
 
             capacity |> should equal expected
-
-
-    type ``Train Availability Tests``() =
 
         [<Fact>]
         let ``Calculate seating capacity per coach for a train`` () =

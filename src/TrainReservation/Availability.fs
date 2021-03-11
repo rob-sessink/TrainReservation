@@ -39,6 +39,7 @@ module Capacity =
               UnitAllocatable = unitAllocatable
               UnitTotal = unitTotal }
 
+
 module Availability =
 
     open Capacity
