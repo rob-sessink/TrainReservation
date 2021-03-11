@@ -1,79 +1,85 @@
-module TrainReservation.TicketOffice.Controller
+namespace TrainReservation.TicketOffice
 
-open TrainReservation.Types
-open Microsoft.AspNetCore.Http
-open Thoth.Json.Net
-open Giraffe
-open FSharp.Control.Tasks.V2.ContextInsensitive
+module Controller =
 
-/// <summary>Decoder of a reservation request</summary>
-/// <returns>UnvalidatedReservationRequest</returns>
-/// {
-///   "trainId": "local_1000",
-///   "seats": 2
-/// }
-let reservationRequestDecoder: Decoder<UnvalidatedReservationRequest> =
-    Decode.object (fun get ->
-        { TrainId = get.Required.Field "trainId" Decode.string
-          SeatCount = get.Required.Field "seats" Decode.int })
+    open TrainReservation.ApiTypes
+    open TrainReservation.Types
+    open Microsoft.AspNetCore.Http
+    open Thoth.Json.Net
+    open Giraffe
+    open FSharp.Control.Tasks.V2.ContextInsensitive
 
-let decodeRequest json =
-    Decode.fromString reservationRequestDecoder json
-    |> Result.mapError (fun e -> InvalidRequest $"Invalid reservation request: {e}")
+    /// <summary>Decoder of a reservation request</summary>
+    /// <returns>UnvalidatedReservationRequest</returns>
+    /// {
+    ///   "trainId": "local_1000",
+    ///   "seats": 2
+    /// }
+    let reservationRequestDecoder: Decoder<UnvalidatedReservationRequest> =
+        Decode.object (fun get ->
+            { TrainId = get.Required.Field "trainId" Decode.string
+              SeatCount = get.Required.Field "seats" Decode.int })
 
-/// <summary>Try encoding a reservation into a json string</summary>
-/// <param name="reservation">to encode</param>
-/// <returns>json</returns>
-let encodeReservation (reservation: ConfirmedReservation) =
-    Encode.object [ "train_id", Encode.string (reservation.TrainId.Value)
-                    "booking_reference", Encode.string (reservation.BookingId.Value)
-                    "seats",
-                    reservation.Seats
-                    |> List.map (fun s -> s.SeatId.Value |> Encode.string)
-                    |> Encode.list ]
-    |> Encode.toString 0
+    let decodeRequest json =
+        Decode.fromString reservationRequestDecoder json
+        |> Result.mapError (fun e -> InvalidRequest $"Invalid reservation request: {e}")
 
-/// <summary>Map a ReservationError to corresponding HTTP status</summary>
-/// <param name="error">to map</param>
-/// <returns>Http status and with error message</returns>
-let asHttpError error =
-    match error with
-    | InvalidRequest e -> RequestErrors.BAD_REQUEST e
-    | InvalidTrainId (_, e) -> RequestErrors.BAD_REQUEST e
-    | InvalidSeatCount (_, e) -> RequestErrors.BAD_REQUEST e
-    | TrainIdNotFound (_, e) -> RequestErrors.BAD_REQUEST e
-    | InvalidTrainInformation e -> ServerErrors.INTERNAL_ERROR e
-    | NoSeatsAvailable _ -> ServerErrors.INTERNAL_ERROR "Not enough seats available."
-    | NoCoachAvailable _ -> ServerErrors.INTERNAL_ERROR "No coach available to accomodate all seats."
-    | MaximumCapacityReached _ -> ServerErrors.INTERNAL_ERROR "Maximum train capacity reached, no more seats available."
+    /// <summary>Try encoding a reservation into a json string</summary>
+    /// <param name="reservation">to encode</param>
+    /// <returns>json</returns>
+    let encodeReservation (reservation: ConfirmedReservation) =
+        Encode.object [ "train_id", Encode.string (reservation.TrainId.Value)
+                        "booking_reference", Encode.string (reservation.BookingId.Value)
+                        "seats",
+                        reservation.Seats
+                        |> List.map (fun s -> s.SeatId.Value |> Encode.string)
+                        |> Encode.list ]
+        |> Encode.toString 0
 
-/// <summary>Handler for the reservation request</summary>
-/// <param name="reserveSeats">workflow handling the request</param>
-/// <param name="next">HTTP middleware function</param>
-/// <param name="ctx">of the HTTP request</param>
-/// <returns>ConfirmedReservation or an error Json representation</returns>
-let reservationHandler (reserveSeats: ReserveSeatsFlow): HttpHandler =
-    fun (next: HttpFunc) (ctx: HttpContext) ->
-        task {
-            let! json = ctx.ReadBodyFromRequestAsync()
-            let reservation = json |> decodeRequest >>= reserveSeats
+    /// <summary>Encode ReservationError to corresponding Http error response</summary>
+    /// <param name="err">to map</param>
+    /// <param name="ctx">of the request</param>
+    /// <returns>Http error response</returns>
+    let encodeResponseError err (ctx: HttpContext) =
+        // partially applied and piped-in
+        match err with
+        | InvalidRequest e -> Error.build 400 e
+        | InvalidTrainId (_, e) -> Error.build 400 e
+        | InvalidSeatCount (_, e) -> Error.build 400 e
+        | TrainIdNotFound (_, e) -> Error.build 400 e
+        | InvalidTrainInformation e -> Error.build 500 e
+        | NoSeatsAvailable _ -> Error.build 500 "Not enough seats available."
+        | NoCoachAvailable _ -> Error.build 500 "No coach available to accomodate all seats."
+        | MaximumCapacityReached _ -> Error.build 500 "Maximum train capacity reached, no more seats available."
+        <| ctx.Request.Path.ToString()
 
-            return!
-                match reservation with
-                | Error e -> (asHttpError e) next ctx
-                | Ok r -> Successful.OK (encodeReservation r) next ctx
-        }
+    /// <summary>Handler for the reservation request</summary>
+    /// <param name="reserveSeats">workflow handling the request</param>
+    /// <param name="next">HTTP middleware function</param>
+    /// <param name="ctx">of the HTTP request</param>
+    /// <returns>ConfirmedReservation or an error Json representation</returns>
+    let reservationHandler (reserveSeats: ReserveSeatsFlow): HttpHandler =
+        fun (next: HttpFunc) (ctx: HttpContext) ->
+            task {
+                let! json = ctx.ReadBodyFromRequestAsync()
+                let reservation = json |> decodeRequest >>= reserveSeats
 
-/// <summary>Handler to reset all reservations for a train</summary>
-/// <param name="resetReservations">workflow handling the request</param>
-/// <param name="trainId">to reset reservations for</param>
-/// <param name="next">HTTP middleware function</param>
-/// <param name="ctx">of the HTTP request</param>
-/// <returns>Ok</returns>
-let resetHandler (resetReservations: ResetReservationsFlow) (trainId: string): HttpHandler =
-    fun (next: HttpFunc) (ctx: HttpContext) ->
-        task {
-            resetReservations { TrainId = trainId }
+                return!
+                    match reservation with
+                    | Error e -> (encodeResponseError e ctx) next ctx
+                    | Ok r -> Successful.OK (encodeReservation r) next ctx
+            }
 
-            return! Successful.OK $"Reservations for train: {trainId} were successfully reset." next ctx
-        }
+    /// <summary>Handler to reset all reservations for a train</summary>
+    /// <param name="resetReservations">workflow handling the request</param>
+    /// <param name="trainId">to reset reservations for</param>
+    /// <param name="next">HTTP middleware function</param>
+    /// <param name="ctx">of the HTTP request</param>
+    /// <returns>Ok</returns>
+    let resetHandler (resetReservations: ResetReservationsFlow) (trainId: string): HttpHandler =
+        fun (next: HttpFunc) (ctx: HttpContext) ->
+            task {
+                resetReservations { TrainId = trainId }
+
+                return! Successful.OK $"Reservations for train: {trainId} were successfully reset." next ctx
+            }

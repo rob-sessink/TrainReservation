@@ -1,127 +1,129 @@
-module TrainReservation.Tests.TicketOffice.Controller
+namespace TrainReservation.Tests.TicketOffice
 
-open TrainReservation.Reservation.Api.Types
-open TrainReservation.Types
-open TrainReservation.TicketOffice
-open TrainReservation.TicketOffice.Controller
-open TrainReservation.Tests.Fixtures
-open TrainReservation.Tests.HttpContextUtil
+module Controller =
 
-open FSharp.Control.Tasks.V2
+    open TrainReservation.ApiTypes
+    open TrainReservation.Types
+    open TrainReservation.TicketOffice
+    open TrainReservation.TicketOffice.Controller
+    open TrainReservation.Tests.Fixtures
+    open TrainReservation.Tests.HttpContextUtil
 
-open FsUnit.Xunit
-open Xunit
+    open FSharp.Control.Tasks.V2
 
-
-/// ---------------------------------------------------------------------------
-/// Thoth Decoder/Encoder Tests
-
-[<Fact>]
-let ``Decode reservation request from json`` () =
-    let json =
-        readFixture "fixtures/reservationRequest.json"
-
-    let unvalidatedReservationRequest = decodeRequest json
-
-    let expected: Result<UnvalidatedReservationRequest, ReservationError> =
-        Ok
-            { TrainId = "local_1000"
-              SeatCount = 2 }
-
-    unvalidatedReservationRequest
-    |> should equal expected
+    open FsUnit.Xunit
+    open Xunit
 
 
-[<Fact>]
-let ``Encode reservation to json`` () =
+    /// ---------------------------------------------------------------------------
+    /// Thoth Decoder/Encoder Tests
 
-    let reserved_a1 =
-        { SeatId = SeatId "1A"
-          SeatDetail =
-              { Coach = "A"
-                SeatNumber = "1"
-                BookingReference = "210201-1A-2A" } }
+    [<Fact>]
+    let ``Decode reservation request from json`` () =
+        let json =
+            readFixture "fixtures/reservationRequest.json"
 
-    let reserved_a2 =
-        { SeatId = SeatId "2A"
-          SeatDetail =
-              { Coach = "A"
-                SeatNumber = "2"
-                BookingReference = "210201-1A-2A" } }
+        let unvalidatedReservationRequest = decodeRequest json
 
-    let confirmed_reservation =
-        { TrainId = TrainId "local_1000"
-          BookingId = BookingId "2021-02-15-local_1000-1A-2A"
-          Seats = [ reserved_a1; reserved_a2 ] }
+        let expected: Result<UnvalidatedReservationRequest, ReservationError> =
+            Ok
+                { TrainId = "local_1000"
+                  SeatCount = 2 }
 
-    let json = encodeReservation confirmed_reservation
-
-    let expected = readFixture "fixtures/reservation.json"
-
-    json |> should equal expected
+        unvalidatedReservationRequest
+        |> should equal expected
 
 
-/// ---------------------------------------------------------------------------
+    [<Fact>]
+    let ``Encode reservation to json`` () =
+
+        let reserved_a1 =
+            { SeatId = SeatId "1A"
+              SeatDetail =
+                  { Coach = "A"
+                    SeatNumber = "1"
+                    BookingReference = "210201-1A-2A" } }
+
+        let reserved_a2 =
+            { SeatId = SeatId "2A"
+              SeatDetail =
+                  { Coach = "A"
+                    SeatNumber = "2"
+                    BookingReference = "210201-1A-2A" } }
+
+        let confirmed_reservation =
+            { TrainId = TrainId "local_1000"
+              BookingId = BookingId "2021-02-15-local_1000-1A-2A"
+              Seats = [ reserved_a1; reserved_a2 ] }
+
+        let json = encodeReservation confirmed_reservation
+
+        let expected = readFixture "fixtures/reservation.json"
+
+        json |> should equal expected
+
+
+    /// ---------------------------------------------------------------------------
 /// HttpHandler Tests
 
-[<Fact>]
-let ``POST a reservation request to '/reserve' receiving a confirmed reservation`` () =
+    [<Fact>]
+    let ``POST a reservation request to '/reserve' receiving a confirmed reservation`` () =
 
-    let request =
-        Some { trainId = "local_1000"; seats = 1 }
+        let request =
+            Some { trainId = "local_1000"; seats = 1 }
 
-    let ctx =
-        buildHandlerContext "POST" "/reserve" request
+        let ctx =
+            buildHandlerContext "POST" "/reserve" request
 
-    task {
-        let! result = WebApp.webApp next ctx
+        task {
+            let! result = WebApp.webApp next ctx
 
-        match result with
-        | Some ctx -> ctx.Response.StatusCode |> should equal 200
-        | None -> failwith "Expected a context"
-    }
+            match result with
+            | Some ctx -> ctx.Response.StatusCode |> should equal 200
+            | None -> failwith "Expected a context"
+        }
 
-[<Fact>]
-let ``POST a invalid reservation request to '/reserve' and receive a bad request error`` () =
+    [<Fact>]
+    let ``POST a invalid reservation request to '/reserve' and receive a bad request error`` () =
 
-    let request =
-        Some { trainId = "local_1000"; seats = -1 }
+        let request =
+            Some { trainId = "local_1000"; seats = -1 }
 
-    let ctx =
-        buildHandlerContext "POST" "/reserve" request
+        let ctx =
+            buildHandlerContext "POST" "/reserve" request
 
-    task {
-        let! result = WebApp.webApp next ctx
+        task {
+            let! result = WebApp.webApp next ctx
 
-        match result with
-        | Some ctx -> ctx.Response.StatusCode |> should equal 400
-        | None -> failwith "Expected a context"
-    }
+            match result with
+            | Some ctx -> ctx.Response.StatusCode |> should equal 400
+            | None -> failwith "Expected a context"
+        }
 
-[<Fact>]
-let ``POST a valid reset reservation request to '/reset' and receive an 200`` () =
+    [<Fact>]
+    let ``POST a valid reset reservation request to '/reset' and receive an 200`` () =
 
-    let ctx =
-        buildHandlerContext "POST" "/reset/local_1000" None
+        let ctx =
+            buildHandlerContext "POST" "/reset/local_1000" None
 
-    task {
-        let! result = WebApp.webApp next ctx
+        task {
+            let! result = WebApp.webApp next ctx
 
-        match result with
-        | Some ctx -> ctx.Response.StatusCode |> should equal 200
-        | None -> failwith "Expected a context"
-    }
+            match result with
+            | Some ctx -> ctx.Response.StatusCode |> should equal 200
+            | None -> failwith "Expected a context"
+        }
 
-[<Fact>]
-let ``POST a unknown request '/unknown' and receive back an 404`` () =
+    [<Fact>]
+    let ``POST a unknown request '/unknown' and receive back an 404`` () =
 
-    let ctx =
-        buildHandlerContext "POST" "/unknown" None
+        let ctx =
+            buildHandlerContext "POST" "/unknown" None
 
-    task {
-        let! result = WebApp.webApp next ctx
+        task {
+            let! result = WebApp.webApp next ctx
 
-        match result with
-        | Some ctx -> ctx.Response.StatusCode |> should equal 404
-        | None -> failwith "Expected a context"
-    }
+            match result with
+            | Some ctx -> ctx.Response.StatusCode |> should equal 404
+            | None -> failwith "Expected a context"
+        }

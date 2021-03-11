@@ -1,20 +1,12 @@
 # TicketOffice.Controller
 
-Use an Error model to return on API:
+# Error model
 
-```f#
-    type ApiError = {
-        "timestamp" of string
-        "status" of int
-        "error" of string
-        "message" of string
-        "path" of string
-    }
-```
+- write a unit test
 
 # Client Application
 
-- implement a simple HTTP client 
+- implement a simple HTTP client
 
 # Domain Events
 
@@ -37,12 +29,13 @@ https://thoth-org.github.io/Thoth.Json/#Decoding-Objects
 
 ## Percentage UoM
 
-Try out if making *percentage* a unit of measure add benefits 
+Try out if making *percentage* a unit of measure add benefits
 https://www.devjoy.com/blog/reading-fsharp/
 
 # ErrorHandling in Flows
 
-In ReserveSeatsFlow use FsToolkit.ErrorHandling Trail computational expression for more flexibility in validation and flow
+In ReserveSeatsFlow use FsToolkit.ErrorHandling Trail computational expression for more flexibility in validation and
+flow
 
 # Make TrainDataService backed by an in-memory database
 
@@ -54,4 +47,5 @@ https://www.planetgeek.ch/2020/12/04/our-journey-to-f-persistency/
 
 Fix running of fsharp-analyzers in build.fsx
 
-//    ==> "FSharpAnalyzers" disable because of Unhandled exception. System.InvalidOperationException: The input list was empty.
+// ==> "FSharpAnalyzers" disable because of Unhandled exception. System.InvalidOperationException: The input list was
+empty.

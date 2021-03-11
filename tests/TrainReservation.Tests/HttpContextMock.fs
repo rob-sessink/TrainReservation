@@ -1,75 +1,77 @@
-module TrainReservation.Tests.HttpContextUtil
+namespace TrainReservation.Tests
 
-open System.IO
-open System.Text
-open System.Threading.Tasks
-open Giraffe
-open Giraffe.Serialization
-open Microsoft.AspNetCore.Http
-open NSubstitute
-open Newtonsoft.Json
+module HttpContextUtil =
 
-/// ---------------------------------------------------------------------------
-/// Functions to mock HttpContext for testing of HttpHandler
+    open System.IO
+    open System.Text
+    open System.Threading.Tasks
+    open Giraffe
+    open Giraffe.Serialization
+    open Microsoft.AspNetCore.Http
+    open NSubstitute
+    open Newtonsoft.Json
 
-/// <summary>Mocked next HttpFun</summary>
-let next: HttpFunc = Some >> Task.FromResult
+    /// ---------------------------------------------------------------------------
+    /// Functions to mock HttpContext for testing of HttpHandler
 
-/// <summary>Build an HTTPContext mock</summary>
-let buildMockContext () =
-    let ctx = Substitute.For<HttpContext>()
+    /// <summary>Mocked next HttpFun</summary>
+    let next: HttpFunc = Some >> Task.FromResult
 
-    ctx
-        .RequestServices
-        .GetService(typeof<INegotiationConfig>)
-        .Returns(DefaultNegotiationConfig())
-    |> ignore
+    /// <summary>Build an HTTPContext mock</summary>
+    let buildMockContext () =
+        let ctx = Substitute.For<HttpContext>()
 
-    ctx
-        .RequestServices
-        .GetService(typeof<Json.IJsonSerializer>)
-        .Returns(NewtonsoftJsonSerializer(NewtonsoftJsonSerializer.DefaultSettings))
-    |> ignore
+        ctx
+            .RequestServices
+            .GetService(typeof<INegotiationConfig>)
+            .Returns(DefaultNegotiationConfig())
+        |> ignore
 
-    ctx.Request.Headers.ReturnsForAnyArgs(new HeaderDictionary())
-    |> ignore
+        ctx
+            .RequestServices
+            .GetService(typeof<Json.IJsonSerializer>)
+            .Returns(NewtonsoftJsonSerializer(NewtonsoftJsonSerializer.DefaultSettings))
+        |> ignore
 
-    ctx.Response.Body <- new MemoryStream()
-    ctx
+        ctx.Request.Headers.ReturnsForAnyArgs(new HeaderDictionary())
+        |> ignore
 
-/// <summary>Read the body from the response</summary>
-/// <param name="ctx">of the request</param>
-let getBody (ctx: HttpContext) =
-    ctx.Response.Body.Position <- 0L
+        ctx.Response.Body <- new MemoryStream()
+        ctx
 
-    use reader =
-        new StreamReader(ctx.Response.Body, System.Text.Encoding.UTF8)
+    /// <summary>Read the body from the response</summary>
+    /// <param name="ctx">of the request</param>
+    let getBody (ctx: HttpContext) =
+        ctx.Response.Body.Position <- 0L
 
-    reader.ReadToEnd()
+        use reader =
+            new StreamReader(ctx.Response.Body, System.Text.Encoding.UTF8)
 
-/// <summary>Set the body context on the request</summary>
-/// <param name="ctx">of the request</param>
-/// <param name="body">to set on the request</param>
-let setBody (ctx: HttpContext) (body: 'a) =
-    let data =
-        Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(body))
+        reader.ReadToEnd()
 
-    ctx.Request.Body <- new MemoryStream(data)
-    ctx
+    /// <summary>Set the body context on the request</summary>
+    /// <param name="ctx">of the request</param>
+    /// <param name="body">to set on the request</param>
+    let setBody (ctx: HttpContext) (body: 'a) =
+        let data =
+            Encoding.UTF8.GetBytes(JsonConvert.SerializeObject(body))
 
-/// <summary>Build the mock context for a handler</summary>
-/// <param name="method">executed (HTTP verb)</param>
-/// <param name="path">called</param>
-/// <param name="body">of the request as (object/record)</param>
-let buildHandlerContext (method: string) (path: string) (body: 'a option) =
-    let ctx = buildMockContext ()
+        ctx.Request.Body <- new MemoryStream(data)
+        ctx
 
-    Option.map (setBody ctx) body |> ignore
+    /// <summary>Build the mock context for a handler</summary>
+    /// <param name="method">executed (HTTP verb)</param>
+    /// <param name="path">called</param>
+    /// <param name="body">of the request as (object/record)</param>
+    let buildHandlerContext (method: string) (path: string) (body: 'a option) =
+        let ctx = buildMockContext ()
 
-    ctx.Request.Method.ReturnsForAnyArgs method
-    |> ignore
+        Option.map (setBody ctx) body |> ignore
 
-    ctx.Request.Path.ReturnsForAnyArgs(PathString(path))
-    |> ignore
+        ctx.Request.Method.ReturnsForAnyArgs method
+        |> ignore
 
-    ctx
+        ctx.Request.Path.ReturnsForAnyArgs(PathString(path))
+        |> ignore
+
+        ctx

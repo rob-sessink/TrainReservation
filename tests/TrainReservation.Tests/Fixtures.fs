@@ -1,12 +1,14 @@
-module TrainReservation.Tests.Fixtures
+namespace TrainReservation.Tests
 
-open System.IO
+module Fixtures =
 
-/// <summary>Return contents of a fixture as string. Ending newline is stripped of</summary>
-/// <param name="relativePath">relative path to fixture from project root</param>
-let readFixture relativePath =
-    let content = File.ReadAllText(relativePath)
+    open System.IO
 
-    if content.EndsWith System.Environment.NewLine
-    then content.TrimEnd(System.Environment.NewLine.ToCharArray())
-    else content
+    /// <summary>Return contents of a fixture as string. Ending newline is stripped of</summary>
+    /// <param name="relativePath">relative path to fixture from project root</param>
+    let readFixture relativePath =
+        let content = File.ReadAllText(relativePath)
+
+        if content.EndsWith System.Environment.NewLine
+        then content.TrimEnd(System.Environment.NewLine.ToCharArray())
+        else content

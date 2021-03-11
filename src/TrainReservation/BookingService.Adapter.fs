@@ -1,48 +1,50 @@
-module TrainReservation.BookingService.Adapter
+namespace TrainReservation.BookingService
 
-open TrainReservation.Types
+module Adapter =
 
-type AsConfirmedReservation = BookingId -> SeatAllocation -> ConfirmedReservation
+    open TrainReservation.Types
 
-/// <summary>Construct a confirmed reservation.</summary>
-/// <param name="bookingId">uniquely identifying the reservation</param>
-/// <param name="seatAllocation">within the train</param>
-/// <returns>ConfirmedReservation</returns>
-let asConfirmedReservation: AsConfirmedReservation =
-    fun bookingId seatAllocation ->
+    type AsConfirmedReservation = BookingId -> SeatAllocation -> ConfirmedReservation
 
-        // copy and update bookingId into list [seats].SeatDetail.BookingReference
-        let withBookingId (bookingId: BookingId) seats =
-            seats
-            |> List.map (fun seat ->
-                { seat with
-                      SeatDetail =
-                          { seat.SeatDetail with
-                                BookingReference = bookingId.Value } })
+    /// <summary>Construct a confirmed reservation.</summary>
+    /// <param name="bookingId">uniquely identifying the reservation</param>
+    /// <param name="seatAllocation">within the train</param>
+    /// <returns>ConfirmedReservation</returns>
+    let asConfirmedReservation: AsConfirmedReservation =
+        fun bookingId seatAllocation ->
 
-        { TrainId = seatAllocation.TrainId
-          BookingId = bookingId
-          Seats = (withBookingId bookingId seatAllocation.Seats) }
+            // copy and update bookingId into list [seats].SeatDetail.BookingReference
+            let withBookingId (bookingId: BookingId) seats =
+                seats
+                |> List.map (fun seat ->
+                    { seat with
+                          SeatDetail =
+                              { seat.SeatDetail with
+                                    BookingReference = bookingId.Value } })
 
-///<summary>Service to provide booking references for reservation. Dummy implementation of the booking reference
-/// adapter</summary>
-/// <param name="url">of service endpoint</param>
-/// <param name="seatAllocation">for which a booking reference should be provided</param>
-/// <returns>ConfirmedReservation</returns>
-let bookingReferenceService url: ProvideBookingReference =
-    fun seatAllocation ->
+            { TrainId = seatAllocation.TrainId
+              BookingId = bookingId
+              Seats = (withBookingId bookingId seatAllocation.Seats) }
 
-        // construct a booking reference in format: [date]-[s1]-[s2]-[sX]
-        let reference =
-            seatAllocation.Seats
-            |> List.map (fun s -> (s.SeatId.Value))
-            |> List.reduce (fun r s -> r + "-" + s)
+    ///<summary>Service to provide booking references for reservation. Dummy implementation of the booking reference
+    /// adapter</summary>
+    /// <param name="url">of service endpoint</param>
+    /// <param name="seatAllocation">for which a booking reference should be provided</param>
+    /// <returns>ConfirmedReservation</returns>
+    let bookingReferenceService url: ProvideBookingReference =
+        fun seatAllocation ->
 
-        let date =
-            System.DateTime.Now.ToString "yyyy-MM-dd"
+            // construct a booking reference in format: [date]-[s1]-[s2]-[sX]
+            let reference =
+                seatAllocation.Seats
+                |> List.map (fun s -> (s.SeatId.Value))
+                |> List.reduce (fun r s -> r + "-" + s)
 
-        let trainId = (seatAllocation.TrainId.Value)
+            let date =
+                System.DateTime.Now.ToString "yyyy-MM-dd"
 
-        let bookingReference = date + "-" + trainId + "-" + reference
+            let trainId = (seatAllocation.TrainId.Value)
 
-        Ok(asConfirmedReservation (BookingId bookingReference) seatAllocation)
+            let bookingReference = date + "-" + trainId + "-" + reference
+
+            Ok(asConfirmedReservation (BookingId bookingReference) seatAllocation)

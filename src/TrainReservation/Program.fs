@@ -1,7 +1,6 @@
 module TrainReservation.Program
 
 open TrainReservation.TicketOffice
-
 open System.Reflection
 
 module AssemblyInfo =
@@ -44,6 +43,7 @@ module AssemblyInfo =
 
 
 module Main =
+
     open Argu
 
     type CLIArguments =

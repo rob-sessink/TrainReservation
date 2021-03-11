@@ -1,5 +1,7 @@
-module TrainReservation.ResetReservationFlow
+namespace TrainReservation
 
-open TrainReservation.Types
+module ResetReservationFlow =
 
-let resetReservations: ResetReservationsFlow = fun unvalidatedRequest -> ()
+    open TrainReservation.Types
+
+    let resetReservations: ResetReservationsFlow = fun unvalidatedRequest -> ()

@@ -1,25 +1,28 @@
-module TrainReservation.Root
-
-open TrainReservation.Types
-open TrainReservation.TicketOffice.Controller
-open TrainReservation.ReserveSeatsFlow
-open TrainReservation.ResetReservationFlow
-open TrainReservation.TrainDataService.Adapter
-open TrainReservation.BookingService.Adapter
-open Giraffe
+namespace TrainReservation
 
 // ---------------------------------------------------------------------------
 /// Composite Root
 ///
-let ComposeReserveSeatsFlow: ReserveSeatsFlow =
-    let io =
-        { ProvideTrainSeatingInformation = provideTrainSeatingInformation "data/trains.json"
-          ProvideBookingReference = bookingReferenceService "http://localhost:8082/booking_reference"
-          UpdateTrainSeatingInformation = updateTrainSeatingInformation "http://localhost:8081/update" }
+module Root =
 
-    reserveSeats io
+    open TrainReservation.Types
+    open TrainReservation.TicketOffice.Controller
+    open TrainReservation.ReserveSeatsFlow
+    open TrainReservation.ResetReservationFlow
+    open TrainReservation.TrainDataService.Adapter
+    open TrainReservation.BookingService.Adapter
+    open Giraffe
 
-let ComposeReservationHandler: HttpHandler = reservationHandler ComposeReserveSeatsFlow
+    let ComposeReserveSeatsFlow: ReserveSeatsFlow =
+        let io =
+            { ProvideTrainSeatingInformation = provideTrainSeatingInformation "data/trains.json"
+              ProvideBookingReference = bookingReferenceService "http://localhost:8082/booking_reference"
+              UpdateTrainSeatingInformation = updateTrainSeatingInformation "http://localhost:8081/update" }
 
-// compose the resetHandler by injecting the 'resetReservations' function fom the ResetReservationFlow
-let ComposeResetTrainHandler trainId: HttpHandler = resetHandler resetReservations trainId
+        reserveSeats io
+
+    let ComposeReservationHandler: HttpHandler =
+        reservationHandler ComposeReserveSeatsFlow
+
+    // compose the resetHandler by injecting the 'resetReservations' function fom the ResetReservationFlow
+    let ComposeResetTrainHandler trainId: HttpHandler = resetHandler resetReservations trainId

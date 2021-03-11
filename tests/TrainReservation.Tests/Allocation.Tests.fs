@@ -1,76 +1,82 @@
-module TrainReservation.Tests.Allocation
+namespace TrainReservation.Tests
 
-open TrainReservation.Tests.AvailabilityFixtures
-open TrainReservation.Allocation
-open TrainReservation.Types
-open Xunit
-open FsUnit.Xunit
+module Allocation =
 
-// Fixtures
-let unreserved_a1 =
-    { SeatId = SeatId "1A"
-      SeatDetail =
-          { Coach = "A"
-            SeatNumber = "1"
-            BookingReference = "" } }
+    open TrainReservation.Tests.AvailabilityFixtures
+    open TrainReservation.Allocation
+    open TrainReservation.Types
+    open Xunit
+    open FsUnit.Xunit
 
-let unreserved_a2 =
-    { SeatId = SeatId "2A"
-      SeatDetail =
-          { Coach = "A"
-            SeatNumber = "2"
-            BookingReference = "" } }
+    // Fixtures
+    let unreserved_a1 =
+        { SeatId = SeatId "1A"
+          SeatDetail =
+              { Coach = "A"
+                SeatNumber = "1"
+                BookingReference = "" } }
 
-let unreserved_a3 =
-    { SeatId = SeatId "3A"
-      SeatDetail =
-          { Coach = "A"
-            SeatNumber = "3"
-            BookingReference = "" } }
+    let unreserved_a2 =
+        { SeatId = SeatId "2A"
+          SeatDetail =
+              { Coach = "A"
+                SeatNumber = "2"
+                BookingReference = "" } }
 
-let seats_allocated_0 = [ unreserved_a1; unreserved_a2; unreserved_a3 ]
+    let unreserved_a3 =
+        { SeatId = SeatId "3A"
+          SeatDetail =
+              { Coach = "A"
+                SeatNumber = "3"
+                BookingReference = "" } }
 
-[<Fact>]
-let ``Try to allocate seats when capacity is available``() =
+    let seats_allocated_0 =
+        [ unreserved_a1
+          unreserved_a2
+          unreserved_a3 ]
 
-    let request =
-        { TrainId = TrainId "local_1000"
-          SeatCount = 1 }
+    [<Fact>]
+    let ``Try to allocate seats when capacity is available`` () =
 
-    let trainInformation = to_train "local_1000" seats_allocated_0
-    let allocation = allocateSeats request trainInformation
+        let request =
+            { TrainId = TrainId "local_1000"
+              SeatCount = 1 }
 
-    let expected =
-        { TrainId = TrainId "local_1000"
-          Seats = [ unreserved_a1 ] }
+        let trainInformation = to_train "local_1000" seats_allocated_0
+        let allocation = allocateSeats request trainInformation
 
-    allocation |> Result.map (should equal expected)
+        let expected =
+            { TrainId = TrainId "local_1000"
+              Seats = [ unreserved_a1 ] }
 
-[<Fact>]
-let ``Try to allocate seats when capacity is unavailable``() =
+        allocation |> Result.map (should equal expected)
 
-    let request =
-        { TrainId = TrainId "local_1000"
-          SeatCount = 3 }
+    [<Fact>]
+    let ``Try to allocate seats when capacity is unavailable`` () =
 
-    let trainInformation = to_train "local_1000" seats_allocated_0
-    let allocation = allocateSeats request trainInformation
+        let request =
+            { TrainId = TrainId "local_1000"
+              SeatCount = 3 }
 
-    match allocation with
-    | Error(NoSeatsAvailable _) -> ()
-    | _ -> failwith "Expected ReservationError.NoSeatsAvailable"
+        let trainInformation = to_train "local_1000" seats_allocated_0
+        let allocation = allocateSeats request trainInformation
 
-[<Fact>]
-let ``Try to allocate seats when maximum capacity was reached``() =
+        match allocation with
+        | Error (NoSeatsAvailable _) -> ()
+        | _ -> failwith "Expected ReservationError.NoSeatsAvailable"
 
-    let request =
-        { TrainId = TrainId "local_1000"
-          SeatCount = 1 }
+    [<Fact>]
+    let ``Try to allocate seats when maximum capacity was reached`` () =
 
-    let trainInformation = to_train "local_1000" seats_allocated_100
+        let request =
+            { TrainId = TrainId "local_1000"
+              SeatCount = 1 }
 
-    let allocation = allocateSeats request trainInformation
+        let trainInformation =
+            to_train "local_1000" seats_allocated_100
 
-    match allocation with
-    | Error(MaximumCapacityReached _) -> ()
-    | _ -> failwith "Expected ReservationError.MaximumCapacityReached"
+        let allocation = allocateSeats request trainInformation
+
+        match allocation with
+        | Error (MaximumCapacityReached _) -> ()
+        | _ -> failwith "Expected ReservationError.MaximumCapacityReached"
