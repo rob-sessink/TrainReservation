@@ -23,6 +23,7 @@
     <ItemGroup>
         <Compile Include="Utils.fs" />
         <Compile Include="Types.fs" />
+        <Compile Include="TimeProvider.fs" />
         <Compile Include="ApiTypes.fs" />
         <Compile Include="Availability.fs" />
         <Compile Include="Allocation.fs" />

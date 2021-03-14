@@ -5,7 +5,11 @@ module Adapter =
     open Xunit
     open FsUnit.Xunit
     open TrainReservation.BookingService.Adapter
+    open TrainReservation.ApplicationTime
+    open TrainReservation.TimeProvider
     open TrainReservation.Types
+
+    time <- TimeProvider.CurrentFixed()
 
     /// Fixtures
     let unreserved_a1 =
@@ -36,7 +40,7 @@ module Adapter =
             bookingReferenceService seats_allocation_2
 
         let bookingId =
-            (System.DateTime.Now.ToString "yyyy-MM-dd")
+            (time.Now.ToString "yyyy-MM-dd")
             + "-local_1000-1A-2A"
 
         let expected =

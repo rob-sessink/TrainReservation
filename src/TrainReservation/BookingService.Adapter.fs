@@ -2,6 +2,7 @@ namespace TrainReservation.BookingService
 
 module Adapter =
 
+    open TrainReservation.ApplicationTime
     open TrainReservation.Types
 
     type AsConfirmedReservation = BookingId -> SeatAllocation -> ConfirmedReservation
@@ -40,8 +41,7 @@ module Adapter =
                 |> List.map (fun s -> (s.SeatId.Value))
                 |> List.reduce (fun r s -> r + "-" + s)
 
-            let date =
-                System.DateTime.Now.ToString "yyyy-MM-dd"
+            let date = time.Now.ToString "yyyy-MM-dd"
 
             let trainId = (seatAllocation.TrainId.Value)
 

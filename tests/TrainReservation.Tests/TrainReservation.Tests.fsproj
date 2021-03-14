@@ -6,6 +6,8 @@
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
     </PropertyGroup>
     <ItemGroup>
+        <Compile Include="TimeProvider.Tests.fs" />
+        <Compile Include="ApiTypes.Tests.fs" />
         <Compile Include="Fixtures.fs" />
         <Compile Include="HttpContextMock.fs" />
         <Compile Include="Availability.Fixtures.fs" />

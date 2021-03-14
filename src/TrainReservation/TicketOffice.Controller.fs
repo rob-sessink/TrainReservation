@@ -25,6 +25,7 @@ module Decoder =
 
 module Encoder =
 
+    open TrainReservation.ApplicationTime
     open TrainReservation.ApiTypes
     open Thoth.Json.Net
 
@@ -45,16 +46,18 @@ module Encoder =
     /// <param name="ctx">of the request</param>
     /// <returns>Http error response</returns>
     let encodeResponseError err (ctx: HttpContext) =
-        // partially applied and piped-in
+        // partially applied first and piped-in last
+        let error = error (time.Now)
+
         match err with
-        | InvalidRequest e -> Error.build 400 e
-        | InvalidTrainId (_, e) -> Error.build 400 e
-        | InvalidSeatCount (_, e) -> Error.build 400 e
-        | TrainIdNotFound (_, e) -> Error.build 400 e
-        | InvalidTrainInformation e -> Error.build 500 e
-        | NoSeatsAvailable _ -> Error.build 500 "Not enough seats available."
-        | NoCoachAvailable _ -> Error.build 500 "No coach available to accomodate all seats."
-        | MaximumCapacityReached _ -> Error.build 500 "Maximum train capacity reached, no more seats available."
+        | InvalidRequest e -> error 400 e
+        | InvalidTrainId (_, e) -> error 400 e
+        | InvalidSeatCount (_, e) -> error 400 e
+        | TrainIdNotFound (_, e) -> error 400 e
+        | InvalidTrainInformation e -> error 500 e
+        | NoSeatsAvailable _ -> error 500 "Not enough seats available."
+        | NoCoachAvailable _ -> error 500 "No coach available to accomodate all seats."
+        | MaximumCapacityReached _ -> error 500 "Maximum train capacity reached, no more seats available."
         <| ctx.Request.Path.ToString()
 
 
