@@ -92,7 +92,7 @@ module Adapter =
                 match filterTrain request.TrainId trains with
                 | [] ->
                     Error
-                        (TrainIdNotFound(request, $"Train information for train: {request.TrainId.Value} was not found"))
+                        (TrainIdNotFound(request, $"Train information for train: {request.TrainId.Value} not found"))
                 | x :: _ -> Ok x
 
 
