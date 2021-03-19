@@ -26,8 +26,7 @@ module Capacity =
                 |> Math.Round
 
             // 70 - 67 = 3
-            let allocatable =
-                (Percentage.value maximumAllowed) - current
+            let allocatable = maximumAllowed.Value - current
 
             // 30.m * (3.m / 100.m) -> rounded down = 0
             let unitAllocatable =

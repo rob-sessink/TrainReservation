@@ -49,7 +49,7 @@ module Types =
     /// Allocation, Capacity and Reservation Types
     type Percentage =
         | Percentage of decimal
-        static member value(Percentage id) = id
+        member this.Value = this |> fun (Percentage id) -> id
 
     /// Type containing the current, allowed and allocatable capacity of an object in percentages and units
     type Capacity =
