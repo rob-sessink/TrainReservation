@@ -16,7 +16,7 @@ module ApiClient =
                 let json = JsonConvert.SerializeObject(request)
 
                 use content =
-                    new StringContent(json, Encoding.UTF8, "application/json; charset=utf-8")
+                    new StringContent(json, Encoding.UTF8, "application/json")
 
                 let! response = client.PostAsync(url, content) |> Async.AwaitTask
 
