@@ -1,7 +1,8 @@
 module TrainReservation.Program
 
-open TrainReservation.TicketOffice
+open System
 open System.Reflection
+open TrainReservation.TicketOffice
 
 module AssemblyInfo =
 
@@ -42,7 +43,7 @@ module AssemblyInfo =
         printfn "%s - %A - %s - %s" name.Name version releaseDate gitHash
 
 
-module Main =
+module Arguments =
 
     open Argu
 
@@ -57,16 +58,43 @@ module Main =
                 | Version -> "Version of application"
                 | Run -> "Run TicketOffice API"
 
+    let errorHandler =
+        ProcessExiter
+            (colorizer =
+                function
+                | ErrorCode.HelpText -> None
+                | _ -> Some ConsoleColor.Red)
+
+    let usage (parser: ArgumentParser) = printfn "%s" <| parser.PrintUsage()
+
+    let parser =
+        ArgumentParser.Create<CLIArguments>(programName = "TrainReservation", errorHandler = errorHandler)
+
+module Main =
+
+    open Argu
+    open Arguments
+
+    let exit code = code
+
+    let die (ex: Exception) =
+        printfn "Exiting caught: %s" ex.Message
+        exit -1
+
     [<EntryPoint>]
     let main (argv: string array) =
-        let parser =
-            ArgumentParser.Create<CLIArguments>(programName = "TrainReservation")
 
-        let results = parser.Parse(argv)
+        try
+            let results = parser.Parse(argv)
 
-        if results.Contains Version then AssemblyInfo.printVersion ()
-        elif results.Contains Info then AssemblyInfo.printInfo ()
-        elif results.Contains Run then WebApp.server () |> ignore
-        else parser.PrintUsage() |> printfn "%s"
+            if results.Contains Version then AssemblyInfo.printVersion ()
+            elif results.Contains Info then AssemblyInfo.printInfo ()
+            elif results.Contains Run then WebApp.server () |> ignore
+            else usage parser
 
-        0
+            exit 0
+        with
+        | :? ArguParseException as ex ->
+            usage parser
+            die ex
+        | ex -> die ex
