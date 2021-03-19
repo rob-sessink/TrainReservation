@@ -32,8 +32,15 @@ The directive GenerateProgramFile must be set to false
 
 To enable testing via ``dotnet`` and resolve 'Unable to find testhost.dll not found'
 
+    dotnet add tests/TrainReservation.Tests package xunit
     dotnet add tests/TrainReservation.Tests package xunit.runner.visualstudio    
+    dotnet add tests/TrainReservation.Tests package FsUnit.xUnit
     dotnet add tests/TrainReservation.Tests package Microsoft.NET.Test.Sdk 
+
+    dotnet add tests/TrainReservation.Client.Tests package xunit
+    dotnet add tests/TrainReservation.Client.Tests package xunit.runner.visualstudio    
+    dotnet add tests/TrainReservation.Client.Tests package FsUnit.xUnit
+    dotnet add tests/TrainReservation.Client.Tests package Microsoft.NET.Test.Sdk 
 
 #### Thoth
 

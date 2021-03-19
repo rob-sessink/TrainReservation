@@ -1,13 +1,5 @@
 # TicketOffice.Controller
 
-# Error model
-
-- write a unit test
-
-# Client Application
-
-- implement a simple HTTP client
-
 # Domain Events
 
 1. Add types and module for publication of domain events around reservations
