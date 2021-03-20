@@ -17,14 +17,14 @@ module Adapter =
           SeatDetail =
               { Coach = "A"
                 SeatNumber = "1"
-                BookingReference = "" } }
+                BookingReference = BookingReference.Empty } }
 
     let unreserved_a2 =
         { SeatId = SeatId "2A"
           SeatDetail =
               { Coach = "A"
                 SeatNumber = "2"
-                BookingReference = "" } }
+                BookingReference = BookingReference.Empty } }
 
     let seats_allocation_2 =
         { TrainId = TrainId "local_1000"

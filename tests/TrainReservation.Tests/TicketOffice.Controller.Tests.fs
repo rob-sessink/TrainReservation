@@ -40,14 +40,14 @@ module Encoder =
               SeatDetail =
                   { Coach = "A"
                     SeatNumber = "1"
-                    BookingReference = "210201-1A-2A" } }
+                    BookingReference = BookingReference.Create "210201-1A-2A" } }
 
         let reserved_a2 =
             { SeatId = SeatId "2A"
               SeatDetail =
                   { Coach = "A"
                     SeatNumber = "2"
-                    BookingReference = "210201-1A-2A" } }
+                    BookingReference = BookingReference.Create "210201-1A-2A" } }
 
         let confirmed_reservation =
             { TrainId = TrainId "local_1000"

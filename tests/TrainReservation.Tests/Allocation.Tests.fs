@@ -14,21 +14,21 @@ module Allocation =
           SeatDetail =
               { Coach = "A"
                 SeatNumber = "1"
-                BookingReference = "" } }
+                BookingReference = BookingReference.Empty } }
 
     let unreserved_a2 =
         { SeatId = SeatId "2A"
           SeatDetail =
               { Coach = "A"
                 SeatNumber = "2"
-                BookingReference = "" } }
+                BookingReference = BookingReference.Empty } }
 
     let unreserved_a3 =
         { SeatId = SeatId "3A"
           SeatDetail =
               { Coach = "A"
                 SeatNumber = "3"
-                BookingReference = "" } }
+                BookingReference = BookingReference.Empty } }
 
     let seats_allocated_0 =
         [ unreserved_a1

@@ -1,12 +1,18 @@
 namespace TrainReservation.Tests
 
+open TrainReservation
+
 module ReserveSeatsFlow =
 
     open TrainReservation.Types
     open TrainReservation.Root
     open TrainReservation.ReserveSeatsFlow
+    open TrainReservation.ApplicationTime
+    open TrainReservation.TimeProvider
     open Xunit
     open FsUnit.Xunit
+
+    time <- TimeProvider.CurrentFixed()
 
     type ``ReserveSeats Flow Scenario Tests against mocked data services``() =
 
@@ -17,7 +23,7 @@ module ReserveSeatsFlow =
 
         let confirmed_reservation =
             let bookingId =
-                (System.DateTime.Now.ToString "yyyy-MM-dd")
+                (time.Now.ToString "yyyy-MM-dd")
                 + "-local_1000-1A"
 
             let reserved_a1 =
@@ -25,7 +31,7 @@ module ReserveSeatsFlow =
                   SeatDetail =
                       { Coach = "A"
                         SeatNumber = "1"
-                        BookingReference = bookingId } }
+                        BookingReference = BookingReference.Create bookingId } }
 
             { TrainId = TrainId "local_1000"
               BookingId = BookingId bookingId

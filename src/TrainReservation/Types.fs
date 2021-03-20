@@ -30,19 +30,36 @@ module Types =
         | BookingId of string
         member this.Value = this |> fun (BookingId id) -> id
 
+    /// Booking Reference
+    type BookingReference =
+        | BookingReference of string option
+        static member Create id =
+            BookingReference
+            <| match id with
+               | null -> None
+               | "" -> None
+               | r -> Some r
+
+        static member Empty = BookingReference None
+
+        member this.Exists =
+            this |> fun (BookingReference id) -> id.IsSome
+
+        member this.Value = this |> fun (BookingReference id) -> id
+
     /// Individual seat and reservation details
     type SeatDetail =
         { Coach: string
           SeatNumber: string
-          BookingReference: string } // TODO prefered to use Option.None as indicating of available seat?
+          BookingReference: BookingReference }
 
     /// Seating details
     type Seat =
         { SeatId: SeatId
           SeatDetail: SeatDetail }
 
-    /// Type containing all seating information for a train as provided via the TrainDataService. The information is used
-    /// in seating allotment and reservations
+    /// Type containing all seating information for a train as provided via the TrainDataService. The information is
+    /// used in seating allotment and reservations
     type TrainInformation = { TrainId: TrainId; Seats: Seat list }
 
     /// ---------------------------------------------------------------------------

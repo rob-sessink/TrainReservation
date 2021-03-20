@@ -218,7 +218,7 @@ module Availability =
                     SeatDetail =
                         { Coach = "A"
                           SeatNumber = "3"
-                          BookingReference = "" } } ]
+                          BookingReference = BookingReference.Empty } } ]
 
             available |> should equal expected
 

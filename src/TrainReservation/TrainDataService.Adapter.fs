@@ -20,7 +20,7 @@ module Adapter =
         Decode.object (fun get ->
             { Coach = get.Required.Field "coach" Decode.string
               SeatNumber = get.Required.Field "seat_number" Decode.string
-              BookingReference = get.Required.Field "booking_reference" Decode.string })
+              BookingReference = BookingReference.Create(get.Required.Field "booking_reference" Decode.string) })
 
     let seatsMapDecoder: Decoder<Seat list> =
         fun path value ->
@@ -91,8 +91,7 @@ module Adapter =
             | Ok trains ->
                 match filterTrain request.TrainId trains with
                 | [] ->
-                    Error
-                        (TrainIdNotFound(request, $"Train information for train: {request.TrainId.Value} not found"))
+                    Error(TrainIdNotFound(request, $"Train information for train: {request.TrainId.Value} not found"))
                 | x :: _ -> Ok x
 
 

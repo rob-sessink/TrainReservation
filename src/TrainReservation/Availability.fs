@@ -49,12 +49,12 @@ module Availability =
         seats
         |> List.filter (fun s ->
             s.SeatDetail.Coach = coach
-            && s.SeatDetail.BookingReference = "")
+            && not s.SeatDetail.BookingReference.Exists)
 
     /// <summary>Count seats allocated in a train</summary>
     let countAllocatedSeats seats =
         seats
-        |> List.filter (fun s -> s.SeatDetail.BookingReference <> "")
+        |> List.filter (fun s -> s.SeatDetail.BookingReference.Exists)
         |> List.length
 
 
@@ -112,7 +112,6 @@ module Availability =
 
     type AllotmentStrategy =
         ValidReservationRequest -> AllocationSettings -> TrainInformation -> Result<Seat list, ReservationError>
-
 
     /// <summary>Strategy to find a single coach that allows the grouped allotment of the requested seats</summary>
     /// <param name="request">for the reservation of seats</param>

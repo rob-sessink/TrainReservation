@@ -21,7 +21,7 @@ module Adapter =
                     { seat with
                           SeatDetail =
                               { seat.SeatDetail with
-                                    BookingReference = bookingId.Value } })
+                                    BookingReference = (BookingReference.Create bookingId.Value) } })
 
             { TrainId = seatAllocation.TrainId
               BookingId = bookingId
