@@ -8,20 +8,15 @@ original [TrainReservation Kata](https://github.com/emilybache/KataTrainReservat
 
 ### Building
 
-```sh
-$ ./build.sh
-```
+    ./build.sh
 
 ---
 
 ### Publishing
 
-Guide in https://docs.microsoft.com/en-us/dotnet/core/deploying/
+See detailed guide in https://docs.microsoft.com/en-us/dotnet/core/deploying/
 
 **Release Configuration**
-
-When building the Release configuration, and optimizing via the directive `<Optimize>true</Optimize>` in .fsproj, will
-prevent the Giraffe/HTTP server to start properly.
 
 Create a *framework-dependent executable*
 
@@ -34,3 +29,14 @@ Create a *framework-dependent single executable*
 Create a single and trimmed executable:
 
     dotnet publish -c Release -r linux-x64 -p:PublishSingleFile=true -p:PublishTrimmed=true -p:UseAppHost=True
+
+---
+
+### Running
+
+Running the TicketOffice API is done via command:
+
+    cd src/TrainReservation/bin/Release/net5.0/linux-x64/publish
+    ./TrainReservation --run 
+
+---

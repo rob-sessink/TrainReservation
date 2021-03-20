@@ -3,7 +3,7 @@
     <PropertyGroup>
         <TargetFramework>net5.0</TargetFramework>
         <OutputType>Exe</OutputType>
-        <GenerateAssemblyInfo>false</GenerateAssemblyInfo>
+        <GenerateAssemblyInfo>true</GenerateAssemblyInfo>
         <GenerateDocumentationFile>true</GenerateDocumentationFile>
         <GenerateProgramFile>false</GenerateProgramFile>
     </PropertyGroup>
@@ -12,7 +12,7 @@
         <Description>TrainReservation does the thing!</Description>
     </PropertyGroup>
     <PropertyGroup Condition="'$(Configuration)'=='Release'">
-        <Optimize>false</Optimize>
+        <Optimize>true</Optimize>
         <Tailcalls>true</Tailcalls>
     </PropertyGroup>
     <ItemGroup>
