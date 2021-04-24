@@ -5,7 +5,7 @@ namespace TrainReservation
 ///
 module Root =
 
-    open TrainReservation.Types
+    open TrainReservation.Types.Allocation
     open TrainReservation.TicketOffice.Controller
     open TrainReservation.ReserveSeatsFlow
     open TrainReservation.ResetReservationFlow
@@ -13,7 +13,7 @@ module Root =
     open TrainReservation.BookingService.Adapter
     open Giraffe
 
-    let ComposeReserveSeatsFlow: ReserveSeatsFlow =
+    let ComposeReserveSeatsFlow : ReserveSeatsFlow =
         let io =
             { ProvideTrainSeatingInformation = provideTrainSeatingInformation "data/trains.json"
               ProvideBookingReference = bookingReferenceService "http://localhost:8082/booking_reference"
@@ -21,8 +21,7 @@ module Root =
 
         reserveSeats io
 
-    let ComposeReservationHandler: HttpHandler =
-        reservationHandler ComposeReserveSeatsFlow
+    let ComposeReservationHandler : HttpHandler = reservationHandler ComposeReserveSeatsFlow
 
     // compose the resetHandler by injecting the 'resetReservations' function fom the ResetReservationFlow
-    let ComposeResetTrainHandler trainId: HttpHandler = resetHandler resetReservations trainId
+    let ComposeResetTrainHandler trainId : HttpHandler = resetHandler resetReservations trainId

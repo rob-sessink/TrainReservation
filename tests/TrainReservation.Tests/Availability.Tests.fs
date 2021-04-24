@@ -5,7 +5,7 @@ open FsUnit.Xunit
 
 module Capacity =
 
-    open TrainReservation.Types
+    open TrainReservation.Types.Allocation
     open TrainReservation.Capacity
 
     type ``Capacity Tests``() =
@@ -28,8 +28,7 @@ module Capacity =
         [<Fact>]
         let ``Calculate capacity when 0% allocated and 100% capacity`` () =
 
-            let capacity =
-                calculateCapacity (Percentage 100m) 150 0
+            let capacity = calculateCapacity (Percentage 100m) 150 0
 
             let expected =
                 { Current = Percentage 0m
@@ -44,8 +43,7 @@ module Capacity =
         [<Fact>]
         let ``Calculate capacity when 100% allocated and 100% capacity`` () =
 
-            let capacity =
-                calculateCapacity (Percentage 100m) 150 150
+            let capacity = calculateCapacity (Percentage 100m) 150 150
 
             let expected =
                 { Current = Percentage 100m
@@ -60,8 +58,7 @@ module Capacity =
         [<Fact>]
         let ``Calculate capacity when 49% allocated and 50% capacity`` () =
 
-            let capacity =
-                calculateCapacity (Percentage 50m) 100 49
+            let capacity = calculateCapacity (Percentage 50m) 100 49
 
             let expected =
                 { Current = Percentage 49m
@@ -76,8 +73,7 @@ module Capacity =
         [<Fact>]
         let ``Calculate capacity when 60% allocated and 50% capacity`` () =
 
-            let capacity =
-                calculateCapacity (Percentage 50m) 100 60
+            let capacity = calculateCapacity (Percentage 50m) 100 60
 
             let expected =
                 { Current = Percentage 60m
@@ -91,19 +87,22 @@ module Capacity =
 
 module Availability =
 
-    open TrainReservation.Tests.AvailabilityFixtures
+    open TrainReservation.Tests.TrainPlanFixtures
     open TrainReservation.Availability
     open TrainReservation.Types
+    open TrainReservation.Types.Allocation
 
     type ``Train Availability Tests``() =
+
+        let plan3Seats_66Pct_Default = TrainPlan.Create "local_1000" seats3_66Pct default_allocation_settings
+
+        let plan2Coaches_6Seats_A66Pct_B100Pct_Default =
+            TrainPlan.Create "local_2000" coaches2_A66Pct_B100Pct default_allocation_settings
 
         [<Fact>]
         let ``Calculate seating capacity for the overall train`` () =
 
-            let trainInformation = to_train "local_1000" seats_allocated_66
-
-            let capacity =
-                calculateTrainCapacity standard_allocation_settings trainInformation
+            let capacity = calculateTrainCapacity plan3Seats_66Pct_Default
 
             let expected =
                 { Current = Percentage 67m
@@ -117,11 +116,7 @@ module Availability =
         [<Fact>]
         let ``Calculate seating capacity per coach for a train`` () =
 
-            let trainInformation =
-                to_train "local_2000" train_coaches_A66_B100
-
-            let capacities =
-                calculateCoachesCapacity standard_allocation_settings trainInformation
+            let capacities = calculateCoachesCapacity plan2Coaches_6Seats_A66Pct_B100Pct_Default
 
             let expected =
                 [ { Coach = "B"
@@ -138,7 +133,6 @@ module Availability =
                           Allocatable = Percentage 33M
                           UnitAllocatable = 1
                           UnitTotal = 3 } } ]
-
 
             capacities |> should equal expected
 
@@ -209,15 +203,14 @@ module Availability =
 
         [<Fact>]
         let ``Single available seat for coach A`` () =
-
-            let available =
-                availableSeatsForCoach "A" train_coaches_A66_B100
+            let available = availableSeatsForCoach "A" coaches2_A66Pct_B100Pct
 
             let expected =
                 [ { SeatId = SeatId "3A"
                     SeatDetail =
                         { Coach = "A"
                           SeatNumber = "3"
+                          ReservationId = ReservationId.Empty
                           BookingReference = BookingReference.Empty } } ]
 
             available |> should equal expected
@@ -225,9 +218,7 @@ module Availability =
 
         [<Fact>]
         let ``No available seats for coach B`` () =
+            let available = availableSeatsForCoach "B" coaches2_A66Pct_B100Pct
 
-            let available =
-                availableSeatsForCoach "B" train_coaches_A66_B100
-
-            let expected: Seat list = []
+            let expected : Seat list = []
             available |> should equal expected

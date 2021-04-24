@@ -1,8 +1,9 @@
 # TicketOffice.Controller
 
-# Domain Events
+# Event Sourcing
 
-1. Add types and module for publication of domain events around reservations
+- Add a few decoder / encoder tests
+- Add directory structure around package and event sourcing module
 
 # Constrained Types
 
@@ -30,12 +31,6 @@ https://stackoverflow.com/questions/3791959/f-units-of-measure-conversion-based-
 
 In ReserveSeatsFlow use FsToolkit.ErrorHandling Trail computational expression for more flexibility in validation and
 flow
-
-# Make TrainDataService backed by an in-memory database
-
-For the TrainDataService use an in-memory database, initialized on startup
-
-https://www.planetgeek.ch/2020/12/04/our-journey-to-f-persistency/
 
 # Build Process
 

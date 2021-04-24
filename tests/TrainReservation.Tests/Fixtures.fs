@@ -9,6 +9,7 @@ module Fixtures =
     let readFixture relativePath =
         let content = File.ReadAllText(relativePath)
 
-        if content.EndsWith System.Environment.NewLine
-        then content.TrimEnd(System.Environment.NewLine.ToCharArray())
-        else content
+        if content.EndsWith System.Environment.NewLine then
+            content.TrimEnd(System.Environment.NewLine.ToCharArray())
+        else
+            content

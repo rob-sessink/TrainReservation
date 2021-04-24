@@ -2,6 +2,7 @@ namespace TrainReservation.TicketOffice
 
 open Microsoft.AspNetCore.Http
 open TrainReservation.Types
+open TrainReservation.Types.Allocation
 
 module Decoder =
 
@@ -13,10 +14,11 @@ module Decoder =
     ///   "trainId": "local_1000",
     ///   "seats": 2
     /// }
-    let reservationRequestDecoder: Decoder<UnvalidatedReservationRequest> =
-        Decode.object (fun get ->
-            { TrainId = get.Required.Field "trainId" Decode.string
-              SeatCount = get.Required.Field "seats" Decode.int })
+    let reservationRequestDecoder : Decoder<UnvalidatedReservationRequest> =
+        Decode.object
+            (fun get ->
+                { TrainId = get.Required.Field "trainId" Decode.string
+                  SeatCount = get.Required.Field "seats" Decode.int })
 
     let decodeRequest json =
         Decode.fromString reservationRequestDecoder json
@@ -32,9 +34,9 @@ module Encoder =
     /// <summary>Try encoding a reservation into a json string</summary>
     /// <param name="reservation">to encode</param>
     /// <returns>json</returns>
-    let encodeReservation (reservation: ConfirmedReservation) =
-        Encode.object [ "train_id", Encode.string (reservation.TrainId.Value)
-                        "booking_reference", Encode.string (reservation.BookingId.Value)
+    let encodeReservation (reservation: Reservation) =
+        Encode.object [ "train_id", Encode.string reservation.TrainId.Value
+                        "booking_reference", Encode.string reservation.BookingId.Value
                         "seats",
                         reservation.Seats
                         |> List.map (fun s -> s.SeatId.Value |> Encode.string)
@@ -47,18 +49,22 @@ module Encoder =
     /// <returns>Http error response</returns>
     let encodeResponseError err (ctx: HttpContext) =
         // partially applied first and piped-in last
-        let error = error (time.Now)
+        let error = error time.Now
+        let path = ctx.Request.Path
 
         match err with
         | InvalidRequest e -> error 400 e
         | InvalidTrainId (_, e) -> error 400 e
         | InvalidSeatCount (_, e) -> error 400 e
         | TrainIdNotFound (_, e) -> error 400 e
-        | InvalidTrainInformation e -> error 500 e
+        | UnallocatedTrainPlan e -> error 400 e
+        | MissingAllocation e -> error 400 e
+        | InvalidTrainPlan e -> error 500 e
+        | PendingAllocationExist e -> error 500 e
         | NoSeatsAvailable _ -> error 500 "Not enough seats available."
         | NoCoachAvailable _ -> error 500 "No coach available to accomodate all seats."
         | MaximumCapacityReached _ -> error 500 "Maximum train capacity reached, no more seats available."
-        <| ctx.Request.Path.ToString()
+        <| path.Value
 
 
 module Controller =
@@ -73,7 +79,7 @@ module Controller =
     /// <param name="next">HTTP middleware function</param>
     /// <param name="ctx">of the HTTP request</param>
     /// <returns>ConfirmedReservation or an error Json representation</returns>
-    let reservationHandler (reserveSeats: ReserveSeatsFlow): HttpHandler =
+    let reservationHandler (reserveSeats: ReserveSeatsFlow) : HttpHandler =
         fun (next: HttpFunc) (ctx: HttpContext) ->
             task {
                 let! json = ctx.ReadBodyFromRequestAsync()
@@ -82,7 +88,7 @@ module Controller =
                 return!
                     match reservation with
                     | Error e -> (encodeResponseError e ctx) next ctx
-                    | Ok r -> Successful.OK (encodeReservation r) next ctx
+                    | Ok r -> Successful.OK(encodeReservation r) next ctx
             }
 
     /// <summary>Handler to reset all reservations for a train</summary>
@@ -91,7 +97,7 @@ module Controller =
     /// <param name="next">HTTP middleware function</param>
     /// <param name="ctx">of the HTTP request</param>
     /// <returns>Ok</returns>
-    let resetHandler (resetReservations: ResetReservationsFlow) (trainId: string): HttpHandler =
+    let resetHandler (resetReservations: ResetReservationsFlow) (trainId: string) : HttpHandler =
         fun (next: HttpFunc) (ctx: HttpContext) ->
             task {
                 resetReservations { TrainId = trainId }

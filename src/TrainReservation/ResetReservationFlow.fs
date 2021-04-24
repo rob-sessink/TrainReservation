@@ -2,6 +2,8 @@ namespace TrainReservation
 
 module ResetReservationFlow =
 
-    open TrainReservation.Types
+    open TrainReservation.Types.Allocation
 
-    let resetReservations: ResetReservationsFlow = fun unvalidatedRequest -> ()
+    /// <summary>Reset all seat reservation for a train-plan</summary>
+    /// <param name="unvalidatedRequest">to reset seat reservation</param>
+    let resetReservations : ResetReservationsFlow = fun unvalidatedRequest -> ()

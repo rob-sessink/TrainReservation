@@ -1,6 +1,6 @@
 namespace TrainReservation.Tests
 
-module TimeProvider2 =
+module TimeProvider =
 
     open TrainReservation
     open TimeProvider
@@ -32,8 +32,7 @@ module TimeProvider2 =
     let ``acquire a fixed time via TimeProvider`` () =
         let localNow = DateTimeOffset.Now
 
-        let fixedTime =
-            TimeProvider.By(FixedTimeProvider.From(localNow))
+        let fixedTime = TimeProvider.By(FixedTimeProvider.From(localNow))
 
         let time1 = fixedTime.Now
 

@@ -16,7 +16,7 @@ module TimeProvider =
 
     // interface defining notions of
     type ITimeProvider =
-        abstract Now: DateTimeOffset
+        abstract Now : DateTimeOffset
 
     // <summary>System time in UTC</summary>
     type SystemTimeProvider() =
@@ -31,7 +31,8 @@ module TimeProvider =
             member this.Now = time
 
         // <summary>Fixed time initialized on current UTC time</summary>
-        static member Now() = FixedTimeProvider(DateTimeOffset.UtcNow)
+        static member Now() =
+            FixedTimeProvider(DateTimeOffset.UtcNow)
 
         // <summary>Fixed time initialized via a DateTimeOffset</summary>
         static member From(fdt: DateTimeOffset) = FixedTimeProvider(fdt)
@@ -46,7 +47,7 @@ module TimeProvider =
         static member CurrentFixed() = TimeProvider(FixedTimeProvider.Now())
         static member By(provider) = TimeProvider(provider)
 
-/// <summary>Time provider for the application, defaulting to the system time)</summary>
+/// <summary>Mutable time provider used in the application, defaulting to the system time</summary>
 module ApplicationTime =
 
     let mutable time = TimeProvider.TimeProvider.SystemTime()

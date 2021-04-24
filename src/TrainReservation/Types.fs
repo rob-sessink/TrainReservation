@@ -1,5 +1,7 @@
 namespace TrainReservation
 
+open System
+
 /// ---------------------------------------------------------------------------
 /// Core Domain Types
 ///
@@ -12,15 +14,15 @@ module Types =
     let (<!>) x fn = Result.map fn x
 
     /// ---------------------------------------------------------------------------
-    /// Train and Seating Types offered by the train data provider
+    /// Train and Seating types
     ///
 
-    /// Train Identifier
+    /// Identifier of a train on which seats can be booked
     type TrainId =
         | TrainId of string
         member this.Value = this |> fun (TrainId id) -> id
 
-    /// Seat Identifier
+    /// Identifier of an individual seat on a coach of a train
     type SeatId =
         | SeatId of string
         member this.Value = this |> fun (SeatId id) -> id
@@ -30,7 +32,7 @@ module Types =
         | BookingId of string
         member this.Value = this |> fun (BookingId id) -> id
 
-    /// Booking Reference
+    /// Booking Reference acts as the identifier for a confirmed booked seat
     type BookingReference =
         | BookingReference of string option
         static member Create id =
@@ -42,121 +44,227 @@ module Types =
 
         static member Empty = BookingReference None
 
-        member this.Exists =
-            this |> fun (BookingReference id) -> id.IsSome
+        member this.Exists = this |> fun (BookingReference id) -> id.IsSome
 
         member this.Value = this |> fun (BookingReference id) -> id
 
-    /// Individual seat and reservation details
+    /// Reservation Identifier acts as the identifier when requesting a seat reservation or a seat is allocated
+    type ReservationId =
+        | ReservationId of Guid option
+
+        static member New = ReservationId(Some(Guid.NewGuid()))
+        static member With guid = ReservationId(Some guid)
+
+        static member Create str =
+            ReservationId
+            <| match str with
+               | null -> None
+               | "" -> None
+               | r -> Some(Guid(r))
+
+        static member Empty = ReservationId None
+
+        member this.Exists = this |> fun (ReservationId id) -> id.IsSome
+
+        member this.Value = this |> fun (ReservationId guid) -> guid
+
+    /// Seat number, location, reservation and booking details
     type SeatDetail =
         { Coach: string
           SeatNumber: string
+          ReservationId: ReservationId
           BookingReference: BookingReference }
 
-    /// Seating details
+        /// copy and update BookingReference
+        member this.WithBookingReference reference =
+            { this with
+                  BookingReference = (BookingReference.Create reference) }
+
+        /// copy and update ReservationId
+        member this.WithReservationId id = { this with ReservationId = id }
+
+    /// A allocatable and bookable seat on a coach for a train-plan
     type Seat =
         { SeatId: SeatId
           SeatDetail: SeatDetail }
 
-    /// Type containing all seating information for a train as provided via the TrainDataService. The information is
-    /// used in seating allotment and reservations
-    type TrainInformation = { TrainId: TrainId; Seats: Seat list }
+        // copy and update BookingReference into SeatDetail
+        member this.WithBookingId(bookingId: BookingId) =
+            { this with
+                  SeatDetail = this.SeatDetail.WithBookingReference bookingId.Value }
 
-    /// ---------------------------------------------------------------------------
-    /// Allocation, Capacity and Reservation Types
-    type Percentage =
-        | Percentage of decimal
-        member this.Value = this |> fun (Percentage id) -> id
+        // copy and update ReservationId into SeatDetail
+        member this.WithReservationId(reservationId: ReservationId) =
+            { this with
+                  SeatDetail = this.SeatDetail.WithReservationId reservationId }
 
-    /// Type containing the current, allowed and allocatable capacity of an object in percentages and units
-    type Capacity =
-        { Current: Percentage // current capacity as percentage of total
-          MaximumAllowed: Percentage // allowed capacity as percentage of total
-          Allocatable: Percentage // allocatable capacity as percentage until maximum
-          UnitAllocatable: int // allocatable units
-          UnitTotal: int } // total number units
 
-    /// Type describing the various option of Availability as Capacity for a train, coach or compartment
-    type Availability =
-        | Available of Capacity
-        | Unavailable of Capacity
-        | MaximumReached of Capacity
+    module Allocation =
 
-    /// Strategies how seats can be allotted on a train
-    type AllotmentStrategy =
-        | Sequential
-        | GroupedPerCoach
+        /// ---------------------------------------------------------------------------
+        /// Allocation, Capacity and Reservation Types
+        type Percentage =
+            | Percentage of decimal
+            member this.Value = this |> fun (Percentage id) -> id
 
-    /// Type holding the settings used in allotment of seats on a train
-    type AllocationSettings =
-        { AllowedCapacity: Percentage
-          AllowedCoachCapacity: Percentage
-          Allotment: AllotmentStrategy }
+        /// Type containing the current, allowed and allocatable capacity of an object in percentages and units
+        type Capacity =
+            { Current: Percentage // current capacity as percentage of total
+              MaximumAllowed: Percentage // allowed capacity as percentage of total
+              Allocatable: Percentage // allocatable capacity as percentage until maximum
+              UnitAllocatable: int // allocatable units
+              UnitTotal: int } // total number units
 
-    /// Current Capacity of a Coach
-    type CoachCapacity = { Coach: string; Capacity: Capacity }
+        /// Type describing the options of Availability as Capacity for a train, coach or compartment
+        type Availability =
+            | Available of Capacity
+            | Unavailable of Capacity
+            | MaximumReached of Capacity
 
-    /// An allocation of seats on a train from which a confirmed reservation is created
-    type SeatAllocation = { TrainId: TrainId; Seats: Seat list }
+        /// Strategies how seats can be allotted on a train
+        type AllotmentStrategy =
+            | Sequential
+            | GroupedPerCoach
 
-    /// Confirmed reservation of seats on a train. This confirmation is communicated back to the customer
-    type ConfirmedReservation =
-        { TrainId: TrainId
-          BookingId: BookingId
-          Seats: Seat list }
+        /// Type holding the settings used in allotment of seats on a train
+        type AllocationSettings =
+            { AllowedCapacity: Percentage
+              AllowedCoachCapacity: Percentage
+              Allotment: AllotmentStrategy }
 
-    /// States of a Reservation
-    type Reservation =
-        | Allocated of SeatAllocation
-        | Confirmed of ConfirmedReservation
+        /// Capacity of an individual coach
+        type CoachCapacity = { Coach: string; Capacity: Capacity }
 
-    /// Events
-    ///type ReservationEvent = ConfirmedReservation of Reservation
+        /// Plan holding all seating and plan information of a train-ride. Used for seat allotment and allocation
+        type TrainPlan =
+            { TrainId: TrainId
+              Seats: Seat list
+              AllocationSettings: AllocationSettings }
 
-    /// ---------------------------------------------------------------------------
-    /// Command Types
+            static member Create trainId seats settings =
+                { TrainId = TrainId trainId
+                  Seats = seats
+                  AllocationSettings = settings }
 
-    /// Unvalidated request for reservation received from a customer. Defined using primitive data-types
-    type UnvalidatedReservationRequest = { TrainId: string; SeatCount: int }
+            member this.IsAllocatable = this.Seats <> []
 
-    /// Validated request for reservation to-be fulfilled by the ticket office
-    type ValidReservationRequest = { TrainId: TrainId; SeatCount: int }
+            member this.SeatsByReservationId id =
+                this.Seats |> List.filter (fun x -> x.SeatDetail.ReservationId = id)
 
-    type ReservationError =
-        | InvalidRequest of message: string
-        | InvalidTrainId of UnvalidatedReservationRequest * message: string
-        | InvalidSeatCount of UnvalidatedReservationRequest * message: string
-        | TrainIdNotFound of ValidReservationRequest * message: string
-        | InvalidTrainInformation of message: string
-        //| BookingServiceUnavailable of string
-        //| TrainDataServiceUnavailable of string
-        | NoSeatsAvailable of ValidReservationRequest * trainCapacity: Availability
-        | NoCoachAvailable of ValidReservationRequest // could pass along trainCapacity
-        | MaximumCapacityReached of ValidReservationRequest * trainCapacity: Availability
+            member this.HasAllocatedSeatsByReservationId id =
+                this.Seats |> List.exists (fun x -> x.SeatDetail.ReservationId = id)
 
-    /// Unvalidated request to reset all reservations for a train, as received from an operator
-    type UnvalidatedResetReservationsRequest = { TrainId: string }
+            member this.HasAllocatedSeats = this.Seats |> List.exists (fun x -> x.SeatDetail.ReservationId.Exists)
 
-    /// Validated request to reset all reservations for a train to-be executed by the ticket office
-    type ValidResetReservationsRequest = { TrainId: TrainId }
+        /// Command to cancel a train plan
+        type TrainPlanCancellation =
+            { TrainId: TrainId }
 
-    /// ---------------------------------------------------------------------------
-    /// Core Flows offered by the Application
+            static member Create trainId = { TrainId = TrainId trainId }
 
-    /// Reservation Flow (Driven Port)
-    type ReserveSeatsFlow = UnvalidatedReservationRequest -> Result<ConfirmedReservation, ReservationError>
+        /// copy and update reservationId into list [seats].SeatDetail.ReservationId
+        let withReservationId reservationId (seats: Seat list) =
+            seats |> List.map (fun seat -> seat.WithReservationId reservationId)
 
-    /// Core Reset Reservation Flow (Driven Port)
-    type ResetReservationsFlow = UnvalidatedResetReservationsRequest -> unit
+        /// Allocation of seats on a train; referenced via a ReservationId
+        type Allocation =
+            { TrainId: TrainId
+              Seats: Seat list
+              ReservationId: ReservationId }
 
-    /// ---------------------------------------------------------------------------
-    /// Core Ports used by the Application
+            static member Create trainId seats reservationId =
+                { TrainId = TrainId trainId
+                  Seats = seats
+                  ReservationId = reservationId }
 
-    /// Train Information Port (Driving)
-    type ProvideTrainSeatingInformation = ValidReservationRequest -> Result<TrainInformation, ReservationError>
+            static member CreateForAllocated trainId reservationId seats =
+                { TrainId = trainId
+                  Seats = withReservationId reservationId seats
+                  ReservationId = reservationId }
 
-    /// Train Information Port (Driving)
-    type UpdateTrainSeatingInformation = ConfirmedReservation -> Result<ConfirmedReservation, ReservationError>
+        /// De-allocation of seats on a train; referenced via a ReservationId
+        type Deallocation =
+            { TrainId: TrainId
+              Seats: Seat list }
 
-    /// Booking Reference Port (Driving)
-    type ProvideBookingReference = SeatAllocation -> Result<ConfirmedReservation, ReservationError>
+            static member Create trainId seats =
+                { TrainId = TrainId trainId
+                  Seats = seats }
+
+            static member CreateFromCancelled trainId cancelled =
+                { TrainId = trainId
+                  Seats = withReservationId ReservationId.Empty cancelled }
+
+
+        /// Commands and Requests
+
+        /// Command used to request an allocation of seats on a train.
+        /// ReservationId acts as the reference between the reservation and an allocation
+        type AllocationRequest =
+            { TrainId: TrainId
+              SeatCount: int
+              ReservationId: ReservationId }
+
+            static member Create trainId seatCount reservationId =
+                { TrainId = TrainId trainId
+                  SeatCount = seatCount
+                  ReservationId = reservationId }
+
+        /// Command used to cancel an existing allocation
+        type AllocationCancellation =
+            { TrainId: TrainId
+              ReservationId: ReservationId }
+
+            static member Create trainId reservationId =
+                { TrainId = TrainId trainId
+                  ReservationId = reservationId }
+
+        /// Unvalidated request for reservation received from a customer. Defined using primitive data-types
+        type UnvalidatedReservationRequest = { TrainId: string; SeatCount: int }
+
+        /// Unvalidated request to reset all reservations for a train-plan as received from an operator
+        type UnvalidatedResetReservationsRequest = { TrainId: string }
+
+        type AllocationError =
+            | InvalidRequest of message: string
+            | InvalidTrainId of UnvalidatedReservationRequest * message: string
+            | InvalidSeatCount of UnvalidatedReservationRequest * message: string
+            | TrainIdNotFound of AllocationRequest * message: string
+            | InvalidTrainPlan of message: string
+            | UnallocatedTrainPlan of message: string
+            | PendingAllocationExist of message: string
+            | MissingAllocation of message: string
+            | NoSeatsAvailable of AllocationRequest * trainCapacity: Availability
+            | NoCoachAvailable of AllocationRequest
+            | MaximumCapacityReached of AllocationRequest * trainCapacity: Availability
+
+        // Exception indicating that the allocation allocation process initiated by an command or query failed
+        exception AllocationException of AllocationError
+
+        /// Confirmed reservation of seats for a train-plan. This confirmation is communicated back to the customer
+        type Reservation =
+            { TrainId: TrainId
+              // ReservationId: ReservationId
+              BookingId: BookingId
+              Seats: Seat list }
+
+        /// ---------------------------------------------------------------------------
+        /// Core Flows offered by the Application
+
+        /// Reservation Flow (Driven Port)
+        type ReserveSeatsFlow = UnvalidatedReservationRequest -> Result<Reservation, AllocationError>
+
+        /// Core Reset Reservation Flow (Driven Port)
+        type ResetReservationsFlow = UnvalidatedResetReservationsRequest -> unit
+
+        /// ---------------------------------------------------------------------------
+        /// Core Ports used by the Application
+
+        /// Train Information Port (Driving)
+        type ProvideTrainSeatingInformation = AllocationRequest -> Result<TrainPlan, AllocationError>
+
+        /// Train Information Port (Driving)
+        type UpdateTrainSeatingInformation = Reservation -> Result<Reservation, AllocationError>
+
+        /// Booking Reference Port (Driving)
+        type ProvideBookingReference = Allocation -> Result<Reservation, AllocationError>

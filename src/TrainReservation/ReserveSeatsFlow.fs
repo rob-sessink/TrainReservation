@@ -3,14 +3,15 @@ namespace TrainReservation
 module ReserveSeatsFlow =
 
     open TrainReservation.Types
+    open TrainReservation.Types.Allocation
     open TrainReservation.Allocation
 
-    type ValidateReservationRequest = UnvalidatedReservationRequest -> Result<ValidReservationRequest, ReservationError>
+    type ValidateReservationRequest = UnvalidatedReservationRequest -> Result<AllocationRequest, AllocationError>
 
     /// <summary>Validate a reservation request</summary>
     /// <param name="request">UnvalidatedReservationRequest</param>
     /// <returns>ValidatedReservationRequest</returns>
-    let validateReservationRequest: ValidateReservationRequest =
+    let validateReservationRequest : ValidateReservationRequest =
         fun request ->
 
             // Push as into constrained type with applicative error handling?
@@ -23,20 +24,22 @@ module ReserveSeatsFlow =
                 match req.SeatCount with
                 | c when c < 0 -> Error(InvalidSeatCount(req, "Seat count cannot be negative"))
                 | c when c = 0 -> Error(InvalidSeatCount(req, "Seat count cannot be zero"))
-                | _ -> Ok(req)
+                | _ -> Ok req
 
-            let asValidReservationRequest (req: UnvalidatedReservationRequest) =
+            let asAllocationRequest (req: UnvalidatedReservationRequest) =
                 Ok
                     { TrainId = TrainId req.TrainId
-                      SeatCount = req.SeatCount }
+                      SeatCount = req.SeatCount
+                      ReservationId = ReservationId.New }
 
             request
             |> validateTrainId
             >>= validateSeatCount
-            >>= asValidReservationRequest
-
+            >>= asAllocationRequest
 
     /// Type containing all service dependencies
+    [<NoEquality>]
+    [<NoComparison>]
     type IO =
         { ProvideTrainSeatingInformation: ProvideTrainSeatingInformation
           ProvideBookingReference: ProvideBookingReference
@@ -44,13 +47,13 @@ module ReserveSeatsFlow =
 
     /// <summary>Reserve seats on a train</summary>
     /// <param name="io">service dependencies</param>
-    /// <param name="unvalidatedRequest">for seat reservation to-be </param>
+    /// <param name="unvalidatedRequest">for seat reservation</param>
     /// <returns>Confirmed Reservation</returns>
-    let reserveSeats io: ReserveSeatsFlow =
+    let reserveSeats io : ReserveSeatsFlow =
         fun unvalidatedRequest ->
 
-            // inline function as request is needed as parameter in allocateSeats
-            // refactor to use FsToolkit.ErrorHandling
+            // inlined function is done, as request is needed as a parameter in allocateSeats
+            // could be refactored  use FsToolkit.ErrorHandling
             let reserve request =
                 request
                 |> io.ProvideTrainSeatingInformation

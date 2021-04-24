@@ -18,9 +18,10 @@ module Utils =
     let readFile relativePath =
         let content = File.ReadAllText(relativePath)
 
-        if content.EndsWith System.Environment.NewLine
-        then content.TrimEnd(System.Environment.NewLine.ToCharArray())
-        else content
+        if content.EndsWith System.Environment.NewLine then
+            content.TrimEnd(System.Environment.NewLine.ToCharArray())
+        else
+            content
 
     /// <summary>Use in combination with below 'is' function to determine if an object 'is of Type x'</summary>
     /// <code>is (function Available -> true | _ -> false) obj</code>
