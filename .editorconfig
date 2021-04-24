@@ -11,10 +11,15 @@ root = true
 insert_final_newline = true
 indent_style = space
 indent_size = 4
-
+max_line_length=120
+                   
 [*.{fs,fsi,fsx,config}]
 charset = utf-8
 trim_trailing_whitespace = true
+fsharp_max_if_then_else_short_width=80
+fsharp_max_dot_get_expression_width=120
+fsharp_max_value_binding_width=80
+fsharp_max_infix_operator_expression=80
 
 [paket.*]
 trim_trailing_whitespace = true
@@ -23,3 +28,4 @@ indent_size = 2
 [*.paket.references]
 trim_trailing_whitespace = true
 indent_size = 2
+
