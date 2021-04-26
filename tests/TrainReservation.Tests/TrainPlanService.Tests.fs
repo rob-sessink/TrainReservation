@@ -33,8 +33,10 @@ module TrainPlanService =
 
         // Fixtures
         let basePlan = TrainPlan.Create "local_1000" seats2_0Pct default_allocation_settings
-        let allocatedPlan = TrainPlan.Create "local_1000" seats3_66Pct default_allocation_settings
         let emptyPlan = TrainPlan.Create "local_1000" [] default_allocation_settings
+        let allocatedPlan = TrainPlan.Create "local_1000" seats3_66Pct default_allocation_settings
+
+        let cancelPlan = TrainPlanCancellation.Create "local_1000"
 
         let reservationId1 = ReservationId.With(Guid("11111111-1111-1111-1111-111111111111"))
         let reservationId2 = ReservationId.With(Guid("11111111-1111-1111-1111-111111111112"))
@@ -97,7 +99,7 @@ module TrainPlanService =
                 let service = setupStore
 
                 do! service.RegisterTrainPlan basePlan
-                do! service.CancelTrainPlan(TrainId "local_1000")
+                do! service.CancelTrainPlan(cancelPlan)
 
                 let! cleared = service.QueryTrainPlan basePlan.TrainId
                 cleared |> should equal emptyPlan
@@ -214,7 +216,7 @@ module TrainPlanService =
                 do! service.RegisterTrainPlan basePlan
 
                 let! _ = service.RequestAllocationUntil requestFor3
-                do! service.CancelTrainPlan(TrainId "local_1000")
+                do! service.CancelTrainPlan(cancelPlan)
             }
 
         [<Fact>]
@@ -223,7 +225,7 @@ module TrainPlanService =
                 let service = setupStore
 
                 try
-                    let! _ = service.CancelTrainPlan(TrainId "local_1000")
+                    let! _ = service.CancelTrainPlan(cancelPlan)
                     failwith "Expected AllocationException(UnallocatedTrainPlan)"
                 with
                 | AllocationException (UnallocatedTrainPlan _) -> ()

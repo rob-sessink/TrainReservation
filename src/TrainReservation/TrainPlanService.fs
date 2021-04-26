@@ -32,6 +32,7 @@ open TrainReservation.Types.Allocation
 /// TD2: temporal part of an allocation is not handled, requires a periodical check and free-up of allocations
 /// TD3: extend event model with metadata: id, version, datetime etc.
 /// TD4: implement idempotency check on command interpretation
+/// TD5: add a statechart on allowed steps
 ///
 module TrainPlanService =
 
@@ -108,7 +109,7 @@ module TrainPlanService =
 
     type Command =
         | RegisterTrainPlan of TrainPlan
-        | CancelTrainPlan of TrainId
+        | CancelTrainPlan of TrainPlanCancellation
         | RequestAllocationUntil of AllocationRequest
         | CancelAllocation of AllocationCancellation
 
@@ -119,10 +120,10 @@ module TrainPlanService =
             let registered = registerPlan plan current
 
             [ Events.TrainPlanAdded registered ]
-        | CancelTrainPlan trainId ->
-            let current = state.ToTrainPlan trainId
+        | CancelTrainPlan plan ->
+            let current = state.ToTrainPlan plan.TrainId
             let deallocated = current |> cancelAllAllocationsForPlan |> List.map Events.SeatsDeallocated
-            Events.TrainPlanCancelled { TrainId = trainId } :: deallocated
+            Events.TrainPlanCancelled { TrainId = plan.TrainId } :: deallocated
         | RequestAllocationUntil request ->
             let current = state.ToTrainPlan request.TrainId
             let allocated = allocateSeats request current
@@ -172,16 +173,16 @@ module TrainPlanService =
                       AllocationSettings = state.AllocationSettings })
 
         /// <summary>Register a train plan</summary>
-        /// <param name="trainPlan">to register</param>
+        /// <param name="plan">to register</param>
         /// <exception>AllocationException if registration failed</exception>
-        member _.RegisterTrainPlan(trainPlan: TrainPlan) =
-            execute trainPlan.TrainId (RegisterTrainPlan trainPlan)
+        member _.RegisterTrainPlan(plan: TrainPlan) =
+            execute plan.TrainId (RegisterTrainPlan plan)
 
         /// <summary>Cancel a train plan</summary>
-        /// <param name="trainId"> of plan to cancel</param>
+        /// <param name="plan">to cancel</param>
         /// <exception>AllocationException if cancellation failed</exception>
-        member _.CancelTrainPlan(trainId: TrainId) =
-            execute trainId (CancelTrainPlan trainId)
+        member _.CancelTrainPlan(plan: TrainPlanCancellation) =
+            execute plan.TrainId (CancelTrainPlan plan)
 
         /// <summary>Request an allocation of seats on train</summary>
         /// <param name="request"> for allocation</param>
