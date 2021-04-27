@@ -27,6 +27,11 @@ module Types =
         | SeatId of string
         member this.Value = this |> fun (SeatId id) -> id
 
+    /// Identifier of a coach of a train
+    type CoachId =
+        | CoachId of string
+        member this.Value = this |> fun (CoachId id) -> id
+
     /// Booking Identifier
     type BookingId =
         | BookingId of string
@@ -70,7 +75,7 @@ module Types =
 
     /// Seat number, location, reservation and booking details
     type SeatDetail =
-        { Coach: string
+        { Coach: CoachId
           SeatNumber: string
           ReservationId: ReservationId
           BookingReference: BookingReference }
@@ -133,7 +138,12 @@ module Types =
               Allotment: AllotmentStrategy }
 
         /// Capacity of an individual coach
-        type CoachCapacity = { Coach: string; Capacity: Capacity }
+        type CoachCapacity = { Coach: CoachId; Capacity: Capacity }
+
+        /// Availability of an individual coach
+        type CoachAvailability =
+            { Coach: CoachId
+              Availability: Availability }
 
         /// Plan holding all seating and plan information of a train-ride. Used for seat allotment and allocation
         type TrainPlan =

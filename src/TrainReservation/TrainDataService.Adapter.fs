@@ -36,7 +36,7 @@ module Adapter =
                     | Some guid -> ReservationId.Create(guid)
                     | None -> if bookingReference.Exists then ReservationId.New else ReservationId.Empty
 
-                { Coach = coach
+                { Coach = CoachId coach
                   SeatNumber = seatNumber
                   ReservationId = reservationId
                   BookingReference = bookingReference })

@@ -111,33 +111,36 @@ module Availability =
         | MaximumReachedFor c -> MaximumReached c
         | _ -> Unavailable capacity
 
-
     type AllotmentStrategy = AllocationRequest -> TrainPlan -> Result<Seat list, AllocationError>
+
+    let availableCoaches coach =
+        match coach.Availability with
+        | Available _ -> Some coach
+        | _ -> None
+
+    let asCoachAvailability seatCount (coach: CoachCapacity) =
+        { Coach = coach.Coach
+          Availability = toAvailability seatCount coach.Capacity }
 
     /// <summary>Strategy to find a single coach that allows the grouped allotment of the requested seats</summary>
     /// <param name="request">for the reservation of seats</param>
     /// <param name="plan">train seating and occupation details</param>
     /// <returns>allocatable coach </returns>
     /// https://stackoverflow.com/questions/34120591/f-generic-function-filter-list-of-discriminated-unions
-    let groupedPerCoachAllotment : AllotmentStrategy =
+    let allotmentGroupedPerCoach : AllotmentStrategy =
         fun request plan ->
             let coachesCapacity = calculateCoachesCapacity plan
 
-            let tryAssumeAvailable coach =
-                match (snd coach) with
-                | Available _ -> Some coach
-                | _ -> None
-
             let firstAvailable =
                 coachesCapacity
-                |> List.map (fun c -> c.Coach, toAvailability request.SeatCount c.Capacity)
-                |> List.choose tryAssumeAvailable
+                |> List.map (asCoachAvailability request.SeatCount)
+                |> List.choose availableCoaches
                 |> List.tryHead
 
             match firstAvailable with
             | None -> Error(NoCoachAvailable(request))
-            | Some coach ->
+            | Some available ->
                 plan.Seats
-                |> availableSeatsForCoach (fst coach)
+                |> availableSeatsForCoach available.Coach
                 |> List.take request.SeatCount
                 |> Ok

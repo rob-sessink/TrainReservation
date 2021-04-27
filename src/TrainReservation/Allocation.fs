@@ -41,8 +41,8 @@ module Allocation =
         fun request plan ->
             let allotted =
                 match plan.AllocationSettings.Allotment with
-                | Sequential -> groupedPerCoachAllotment request plan
-                | GroupedPerCoach -> groupedPerCoachAllotment request plan
+                | Sequential -> allotmentGroupedPerCoach request plan
+                | GroupedPerCoach -> allotmentGroupedPerCoach request plan
 
             allotted
             |> Result.map (Allocation.CreateForAllocated plan.TrainId request.ReservationId)

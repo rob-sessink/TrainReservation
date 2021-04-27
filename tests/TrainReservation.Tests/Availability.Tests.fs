@@ -119,14 +119,14 @@ module Availability =
             let capacities = calculateCoachesCapacity plan2Coaches_6Seats_A66Pct_B100Pct_Default
 
             let expected =
-                [ { Coach = "B"
+                [ { Coach = CoachId "B"
                     Capacity =
                         { Current = Percentage 100M
                           MaximumAllowed = Percentage 100M
                           Allocatable = Percentage 0M
                           UnitAllocatable = 0
                           UnitTotal = 3 } }
-                  { Coach = "A"
+                  { Coach = CoachId "A"
                     Capacity =
                         { Current = Percentage 67M
                           MaximumAllowed = Percentage 100M
@@ -203,12 +203,12 @@ module Availability =
 
         [<Fact>]
         let ``Single available seat for coach A`` () =
-            let available = availableSeatsForCoach "A" coaches2_A66Pct_B100Pct
+            let available = availableSeatsForCoach (CoachId "A") coaches2_A66Pct_B100Pct
 
             let expected =
                 [ { SeatId = SeatId "3A"
                     SeatDetail =
-                        { Coach = "A"
+                        { Coach = CoachId "A"
                           SeatNumber = "3"
                           ReservationId = ReservationId.Empty
                           BookingReference = BookingReference.Empty } } ]
@@ -218,7 +218,7 @@ module Availability =
 
         [<Fact>]
         let ``No available seats for coach B`` () =
-            let available = availableSeatsForCoach "B" coaches2_A66Pct_B100Pct
+            let available = availableSeatsForCoach (CoachId "B") coaches2_A66Pct_B100Pct
 
             let expected : Seat list = []
             available |> should equal expected
