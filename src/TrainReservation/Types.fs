@@ -137,6 +137,12 @@ module Types =
               AllowedCoachCapacity: Percentage
               Allotment: AllotmentStrategy }
 
+        /// <summary>Default allocation settings</summary>
+        let defaultAllocationSettings =
+            { AllowedCapacity = Percentage 70m
+              AllowedCoachCapacity = Percentage 100m
+              Allotment = GroupedPerCoach }
+
         /// Capacity of an individual coach
         type CoachCapacity = { Coach: CoachId; Capacity: Capacity }
 

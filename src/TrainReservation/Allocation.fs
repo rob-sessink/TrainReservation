@@ -8,11 +8,6 @@ module Allocation =
 
     type ProvideAllocationSettings = TrainPlan -> AllocationSettings
 
-    /// <summary>Default allocation settings</summary>
-    let defaultAllocationSettings =
-        { AllowedCapacity = Percentage 70m
-          AllowedCoachCapacity = Percentage 100m
-          Allotment = GroupedPerCoach }
 
     /// <summary>Provide allocation specific for a train</summary>
     /// <returns>allocation settings</returns>

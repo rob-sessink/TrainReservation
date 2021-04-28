@@ -6,7 +6,6 @@ module Adapter =
     open TrainReservation.Utils
     open TrainReservation.Types
     open TrainReservation.Types.Allocation
-    open TrainReservation.Allocation
 
     /// <summary>Decoder for a map of seat details under fields 'seats'</summary>
     ///
