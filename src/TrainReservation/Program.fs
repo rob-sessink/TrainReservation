@@ -32,7 +32,7 @@ module AssemblyInfo =
 
     let printVersion () =
         let version = assembly.Force().GetName().Version
-        printfn "%A" version
+        printfn $"%A{version}"
 
     let printInfo () =
         let assembly = assembly.Force()
@@ -40,7 +40,7 @@ module AssemblyInfo =
         let version = assembly.GetName().Version
         let releaseDate = getReleaseDate assembly
         let gitHash = getGitHash assembly
-        printfn "%s - %A - %s - %s" name.Name version releaseDate gitHash
+        printfn $"%s{name.Name} - %A{version} - %s{releaseDate} - %s{gitHash}"
 
 
 module Arguments =
@@ -78,7 +78,7 @@ module Main =
     let exit code = code
 
     let die (ex: Exception) =
-        printfn "Exiting caught: %s" ex.Message
+        printfn $"Exiting caught: %s{ex.Message}"
         exit -1
 
     [<EntryPoint>]
