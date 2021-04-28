@@ -33,6 +33,22 @@ module Capacity =
               UnitAllocatable = unitAllocatable
               UnitTotal = unitTotal }
 
+    /// Active Patterns used in determining availability based upon capacity and number of requested seats
+    let (|UnavailableFor|_|) requested c =
+        match c.Allocatable > Percentage 0m && c.UnitAllocatable < requested with
+        | true -> Some c
+        | false -> None
+
+    let (|AvailableFor|_|) requested c =
+        match c.Allocatable > Percentage 0m && c.UnitAllocatable >= requested with
+        | true -> Some c
+        | false -> None
+
+    let (|MaximumReachedFor|_|) c =
+        match c.Allocatable <= Percentage 0m with
+        | true -> Some c
+        | false -> None
+
 
 module Availability =
 
@@ -71,7 +87,6 @@ module Availability =
 
             coachesCapacity
 
-
     type CalculateTrainCapacity = TrainPlan -> Capacity
 
     /// <summary>Calculate the capacity for a train plan</summary>
@@ -84,27 +99,11 @@ module Availability =
             let allocated = countAllocatedSeats plan.Seats
             calculateCapacity allowed total allocated
 
-    /// Active Patterns used in determining availability based upon capacity and number of requested seats
-    let (|UnavailableFor|_|) requested c =
-        match c.Allocatable > Percentage 0m && c.UnitAllocatable < requested with
-        | true -> Some c
-        | false -> None
-
-    let (|AvailableFor|_|) requested c =
-        match c.Allocatable > Percentage 0m && c.UnitAllocatable >= requested with
-        | true -> Some c
-        | false -> None
-
-    let (|MaximumReachedFor|_|) c =
-        match c.Allocatable <= Percentage 0m with
-        | true -> Some c
-        | false -> None
-
     /// <summary>Determine availability based on capacity and seats requested</summary>
     /// <param name="requested">number of seats</param>
     /// <param name="capacity">of train or coach</param>
-    /// <returns>Capacity</returns>
-    let toAvailability requested capacity : Availability =
+    /// <returns>Availability</returns>
+    let toAvailability requested capacity =
         match capacity with
         | UnavailableFor requested c -> Unavailable c
         | AvailableFor requested c -> Available c
@@ -113,7 +112,7 @@ module Availability =
 
     type AllotmentStrategy = AllocationRequest -> TrainPlan -> Result<Seat list, AllocationError>
 
-    let availableCoaches coach =
+    let availableCoach coach =
         match coach.Availability with
         | Available _ -> Some coach
         | _ -> None
@@ -134,7 +133,7 @@ module Availability =
             let firstAvailable =
                 coachesCapacity
                 |> List.map (asCoachAvailability request.SeatCount)
-                |> List.choose availableCoaches
+                |> List.choose availableCoach
                 |> List.tryHead
 
             match firstAvailable with
