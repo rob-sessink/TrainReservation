@@ -99,11 +99,6 @@ module Adapter =
     let filterTrain trainId (trains: TrainPlan list) =
         trains |> List.filter (fun ti -> ti.TrainId = trainId)
 
-    let asTrainPlan (trains: TrainPlan) =
-        { TrainId = trains.TrainId
-          Seats = trains.Seats
-          AllocationSettings = defaultAllocationSettings }
-
     /// <summary>Provide seating details for a train</summary>
     /// <param name="url">of service endpoint</param>
     /// <param name="request">request to retrieve train details for</param>
@@ -119,7 +114,7 @@ module Adapter =
                 match filterTrain request.TrainId trains with
                 | [] ->
                     Error(TrainIdNotFound(request, $"Train information for train: {request.TrainId.Value} not found"))
-                | x :: _ -> Ok(asTrainPlan x)
+                | x :: _ -> Ok x
 
 
     /// <summary>Update seating details for a train based on a reservation</summary>
