@@ -17,8 +17,6 @@
         <Tailcalls>true</Tailcalls>
     </PropertyGroup>
     <ItemGroup>
-        <!-- <PackageReference Include="Equinox" Version="2.5.1" />
-        <PackageReference Include="Equinox.Core" Version="2.5.1" /> -->
         <PackageReference Include="Equinox.MemoryStore" Version="2.5.1"/>
         <PackageReference Include="FsCodec.NewtonsoftJson" Version="2.1.1"/>
         <PackageReference Include="TypeShape" Version="9.0.0"/>
