@@ -27,15 +27,9 @@ module ReserveSeatsFlow =
                 | _ -> Ok req
 
             let asAllocationRequest (req: UnvalidatedReservationRequest) =
-                Ok
-                    { TrainId = TrainId req.TrainId
-                      SeatCount = req.SeatCount
-                      ReservationId = ReservationId.New }
+                Ok(AllocationRequest.Create req.TrainId req.SeatCount ReservationId.New)
 
-            request
-            |> validateTrainId
-            >>= validateSeatCount
-            >>= asAllocationRequest
+            request |> validateTrainId >>= validateSeatCount >>= asAllocationRequest
 
     /// Type containing all service dependencies
     [<NoEquality>]
@@ -62,9 +56,6 @@ module ReserveSeatsFlow =
                 >>= io.UpdateTrainSeatingInformation
 
             // publish domain event for the reservation to TrainDataService
-            let reservation =
-                unvalidatedRequest
-                |> validateReservationRequest
-                >>= reserve
+            let reservation = unvalidatedRequest |> validateReservationRequest >>= reserve
 
             reservation
