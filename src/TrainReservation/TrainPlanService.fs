@@ -92,7 +92,7 @@ module TrainPlanService =
         /// initial state
         let initial =
             { Seats = []
-              AllocationSettings = Allocation.defaultAllocationSettings
+              AllocationSettings = defaultAllocationSettings
               NextId = 0 }
 
         /// evolve state by handling events
