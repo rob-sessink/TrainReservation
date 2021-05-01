@@ -14,13 +14,32 @@ module Types =
     let (<!>) x fn = Result.map fn x
 
     /// ---------------------------------------------------------------------------
-    /// Train and Seating types
-    ///
+    /// Common types
 
     /// Identifier of a train on which seats can be booked
     type TrainId =
         | TrainId of string
+
+        static member Create(id: string) =
+            TrainId
+            <| match id with
+               | null -> invalidArg "trainId" "trainId is null"
+               | t when t.Length < 5 -> invalidArg "trainId" "Train identifier is invalid"
+               | t -> t
+
         member this.Value = this |> fun (TrainId id) -> id
+
+    type SeatCount =
+        | SeatCount of int
+
+        static member Create count =
+            SeatCount
+            <| match count with
+               | c when c < 0 -> invalidArg "count" "Seat count cannot be negative"
+               | c when c = 0 -> invalidArg "count" "Seat count cannot be zero"
+               | _ -> count
+
+        member this.Value = this |> fun (SeatCount count) -> count
 
     /// Identifier of an individual seat on a coach of a train
     type SeatId =
@@ -151,6 +170,9 @@ module Types =
             { Coach: CoachId
               Availability: Availability }
 
+        /// ---------------------------------------------------------------------------
+        /// Command, Request and Query types
+
         /// Plan holding all seating and plan information of a train-ride. Used for seat allotment and allocation
         type TrainPlan =
             { TrainId: TrainId
@@ -212,18 +234,16 @@ module Types =
                   Seats = withReservationId ReservationId.Empty cancelled }
 
 
-        /// Commands and Requests
-
         /// Command used to request an allocation of seats on a train.
         /// ReservationId acts as the reference between the reservation and an allocation
         type AllocationRequest =
             { TrainId: TrainId
-              SeatCount: int
+              SeatCount: SeatCount
               ReservationId: ReservationId }
 
             static member Create trainId seatCount reservationId =
-                { TrainId = TrainId trainId
-                  SeatCount = seatCount
+                { TrainId = TrainId.Create trainId
+                  SeatCount = SeatCount.Create seatCount
                   ReservationId = reservationId }
 
         /// Command used to cancel an existing allocation
@@ -243,8 +263,6 @@ module Types =
 
         type AllocationError =
             | InvalidRequest of message: string
-            | InvalidTrainId of UnvalidatedReservationRequest * message: string
-            | InvalidSeatCount of UnvalidatedReservationRequest * message: string
             | TrainIdNotFound of AllocationRequest * message: string
             | InvalidTrainPlan of message: string
             | UnallocatedTrainPlan of message: string

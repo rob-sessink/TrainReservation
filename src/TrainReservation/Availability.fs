@@ -103,10 +103,10 @@ module Availability =
     /// <param name="requested">number of seats</param>
     /// <param name="capacity">of train or coach</param>
     /// <returns>Availability</returns>
-    let toAvailability requested capacity =
+    let toAvailability (requested: SeatCount) capacity =
         match capacity with
-        | UnavailableFor requested c -> Unavailable c
-        | AvailableFor requested c -> Available c
+        | UnavailableFor requested.Value c -> Unavailable c
+        | AvailableFor requested.Value c -> Available c
         | MaximumReachedFor c -> MaximumReached c
         | _ -> Unavailable capacity
 
@@ -141,5 +141,5 @@ module Availability =
             | Some available ->
                 plan.Seats
                 |> availableSeatsForCoach available.Coach
-                |> List.take request.SeatCount
+                |> List.take request.SeatCount.Value
                 |> Ok

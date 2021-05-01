@@ -5,21 +5,6 @@
 - Add a few decoder / encoder tests
 - Add directory structure around package and event sourcing module
 
-# Constrained Types
-
-Model TrainId and SeatId etc. as constrained types preferably with a Result and DomainMessage
-
-With this we also need to adjust the Thoth decoders:
-a) properly work with these constrained types as we map directly from JSON towards the type b) use DTO types with
-primitives to which Thoth decodes and map later to validated Domain types
-
-For a) we probably need to use a Decoder function per constrain type and map an Error to DecoderError? however this
-feels the cleanest solution
-
-https://fsharpforfunandprofit.com/posts/designing-with-types-single-case-dus/
-https://github.com/swlaschin/Railway-Oriented-Programming-Example/blob/master/src/FsRopExample/DomainModel.fs
-https://thoth-org.github.io/Thoth.Json/#Decoding-Objects
-
 ## Percentage UoM
 
 Try out if making *percentage* a unit of measure add benefits

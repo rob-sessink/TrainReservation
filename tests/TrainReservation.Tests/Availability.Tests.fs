@@ -146,7 +146,7 @@ module Availability =
                   UnitAllocatable = 0
                   UnitTotal = 3 }
 
-            let availability = toAvailability 1 capacity
+            let availability = toAvailability (SeatCount 1) capacity
 
             let expected = Unavailable capacity
 
@@ -162,7 +162,7 @@ module Availability =
                   UnitAllocatable = 2
                   UnitTotal = 3 }
 
-            let availability = toAvailability 2 capacity
+            let availability = toAvailability (SeatCount 2) capacity
 
             let expected = Available capacity
 
@@ -178,7 +178,7 @@ module Availability =
                   UnitAllocatable = 0
                   UnitTotal = 3 }
 
-            let availability = toAvailability 2 capacity
+            let availability = toAvailability (SeatCount 2) capacity
 
             let expected = MaximumReached capacity
 
@@ -194,7 +194,7 @@ module Availability =
                   UnitAllocatable = 0
                   UnitTotal = 3 }
 
-            let availability = toAvailability 2 capacity
+            let availability = toAvailability (SeatCount 2) capacity
 
             let expected = MaximumReached capacity
 

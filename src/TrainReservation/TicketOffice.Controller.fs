@@ -54,16 +54,14 @@ module Encoder =
 
         match err with
         | InvalidRequest e -> error 400 e
-        | InvalidTrainId (_, e) -> error 400 e
-        | InvalidSeatCount (_, e) -> error 400 e
         | TrainIdNotFound (_, e) -> error 400 e
         | UnallocatedTrainPlan e -> error 400 e
         | MissingAllocation e -> error 400 e
-        | InvalidTrainPlan e -> error 500 e
-        | PendingAllocationExist e -> error 500 e
-        | NoSeatsAvailable _ -> error 500 "Not enough seats available."
-        | NoCoachAvailable _ -> error 500 "No coach available to accomodate all seats."
-        | MaximumCapacityReached _ -> error 500 "Maximum train capacity reached, no more seats available."
+        | InvalidTrainPlan e -> error 400 e
+        | PendingAllocationExist e -> error 400 e
+        | NoSeatsAvailable _ -> error 422 "Not enough seats available."
+        | NoCoachAvailable _ -> error 422 "No coach available to accomodate all seats."
+        | MaximumCapacityReached _ -> error 422 "Maximum train capacity reached, no more seats available."
         <| path.Value
 
 

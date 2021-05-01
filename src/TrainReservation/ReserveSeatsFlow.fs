@@ -13,23 +13,9 @@ module ReserveSeatsFlow =
     /// <returns>ValidatedReservationRequest</returns>
     let validateReservationRequest : ValidateReservationRequest =
         fun request ->
-
-            // Push as into constrained type with applicative error handling?
-            let validateTrainId (req: UnvalidatedReservationRequest) =
-                match req.TrainId with
-                | t when t.Length < 5 -> Error(InvalidTrainId(req, "Train identifier is invalid"))
-                | _ -> Ok req
-
-            let validateSeatCount (req: UnvalidatedReservationRequest) =
-                match req.SeatCount with
-                | c when c < 0 -> Error(InvalidSeatCount(req, "Seat count cannot be negative"))
-                | c when c = 0 -> Error(InvalidSeatCount(req, "Seat count cannot be zero"))
-                | _ -> Ok req
-
-            let asAllocationRequest (req: UnvalidatedReservationRequest) =
-                Ok(AllocationRequest.Create req.TrainId req.SeatCount ReservationId.New)
-
-            request |> validateTrainId >>= validateSeatCount >>= asAllocationRequest
+            try
+                Ok(AllocationRequest.Create request.TrainId request.SeatCount ReservationId.New)
+            with :? System.ArgumentException as ex -> Error(InvalidRequest(ex.Message))
 
     /// Type containing all service dependencies
     [<NoEquality>]

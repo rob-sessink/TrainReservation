@@ -117,7 +117,7 @@ module ReserveSeatsFlow =
 
             let expected : AllocationRequest =
                 { TrainId = TrainId "local_1000"
-                  SeatCount = 2
+                  SeatCount = SeatCount 2
                   ReservationId = ReservationId.Empty }
 
             result <!> (allocationRequestMatcher expected)
@@ -128,7 +128,7 @@ module ReserveSeatsFlow =
 
             let result = validateReservationRequest request
 
-            let expected = InvalidTrainId({ TrainId = ""; SeatCount = 1 }, "Train identifier is invalid")
+            let expected = InvalidRequest "Train identifier is invalid (Parameter 'trainId')"
 
             Result.mapError (should equal expected) result
 
@@ -141,12 +141,7 @@ module ReserveSeatsFlow =
 
             let result = validateReservationRequest request
 
-            let expected =
-                (InvalidSeatCount(
-                    { TrainId = "local_1000"
-                      SeatCount = 0 },
-                    "Seat count cannot be zero"
-                ))
+            let expected = InvalidRequest "Seat count cannot be zero (Parameter 'count')"
 
             Result.mapError (should equal expected) result
 
@@ -159,11 +154,6 @@ module ReserveSeatsFlow =
 
             let result = validateReservationRequest request
 
-            let expected =
-                (InvalidSeatCount(
-                    { TrainId = "local_1000"
-                      SeatCount = -1 },
-                    "Seat count cannot be negative"
-                ))
+            let expected = InvalidRequest "Seat count cannot be negative (Parameter 'count')"
 
             Result.mapError (should equal expected) result

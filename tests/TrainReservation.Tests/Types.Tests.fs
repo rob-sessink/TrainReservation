@@ -9,7 +9,38 @@ open FsUnit.Xunit
 
 module Types =
 
-    type ``BookingReference Type Tests``() =
+    type ``TrainId type``() =
+
+        [<Fact>]
+        let ``TrainId empty string`` () =
+            (fun () -> TrainId.Create "" |> ignore)
+            |> should throw typeof<ArgumentException>
+
+        [<Fact>]
+        let ``TrainId too short string`` () =
+            (fun () -> TrainId.Create "s" |> ignore)
+            |> should throw typeof<ArgumentException>
+
+        [<Fact>]
+        let ``TrainId valid`` () =
+            (TrainId.Create "local_1000").Value |> should equal "local_1000"
+
+    type ``SeatCount type``() =
+
+        [<Fact>]
+        let ``SeatCount zero`` () =
+            (fun () -> SeatCount.Create 0 |> ignore) |> should throw typeof<ArgumentException>
+
+        [<Fact>]
+        let ``SeatCount negative`` () =
+            (fun () -> SeatCount.Create -1 |> ignore) |> should throw typeof<ArgumentException>
+
+        [<Fact>]
+        let ``SeatCount valid`` () =
+            (SeatCount.Create 5).Value |> should equal 5
+
+
+    type ``BookingReference type``() =
 
         [<Fact>]
         let ``BookingReference Create empty`` () =
@@ -32,7 +63,7 @@ module Types =
             BookingReference.Empty.Value |> should equal None
 
 
-    type ``ReservationId Type Tests``() =
+    type ``ReservationId type``() =
 
         let guid_1 = Guid("11111111-1111-1111-1111-111111111111")
 
@@ -79,7 +110,7 @@ module Types =
         let plan_2s_0pct_default = TrainPlan.Create "local_1000" seats2_0Pct default_allocation_settings
         let plan_3s_66pct_default = TrainPlan.Create "local_1000" seats3_66Pct default_allocation_settings
 
-        type ``TrainPlan Type Tests``() =
+        type ``TrainPlan type``() =
 
             [<Fact>]
             let ``Determine Train Plan has no allocated seats`` () =
