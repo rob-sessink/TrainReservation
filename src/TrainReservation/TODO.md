@@ -2,8 +2,7 @@
 
 # Event Sourcing
 
-- Add a few decoder / encoder tests
-- Add directory structure around package and event sourcing module
+- add directory structure around package and event sourcing module
 
 ## Percentage UoM
 

@@ -1,10 +1,10 @@
 # TrainReservation
 
-An F# implementation of the [TrainReservation Kata](https://github.com/emilybache/KataTrainReservation) following Ports
-& Adapters style. The main purpose for doing this Kata is to become more experienced with F# development and concepts of
-functional programming. Business rules and constraints defined in the Kata were followed as close as possible and the
-API contracts and data-models are taken from the
-original [TrainReservation Kata](https://github.com/emilybache/KataTrainReservation).
+An F# implementation of the [TrainReservation Kata](https://github.com/emilybache/KataTrainReservation) using Event 
+Sourcing and following Ports & Adapters style. The main purpose for doing this Kata is to become more experienced with
+F# development and concepts of functional programming. Business rules and constraints defined in the Kata were 
+followed as close as possible and the API contracts and data-models are taken from the original 
+[TrainReservation Kata](https://github.com/emilybache/KataTrainReservation).
 
 ### Building
 
