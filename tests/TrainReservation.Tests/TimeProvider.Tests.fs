@@ -1,5 +1,7 @@
 namespace TrainReservation.Tests
 
+open System.Threading
+
 module TimeProvider =
 
     open TrainReservation
@@ -24,6 +26,7 @@ module TimeProvider =
         let systemTime = TimeProvider.SystemTime()
 
         let time1 = systemTime.Now
+        Thread.Sleep(1000);
         let time2 = systemTime.Now
 
         time2 |> should greaterThan time1
