@@ -1,7 +1,6 @@
 namespace TrainReservation
 
-/// ---------------------------------------------------------------------------
-/// Public API Types used by a client
+/// public API Types (defined with pure primitives) as send by a client
 ///
 module ApiTypes =
 
@@ -20,13 +19,13 @@ module ApiTypes =
           Path: string
           Timestamp: string }
 
-    let asError (time: DateTimeOffset) statusCode message path =
+    let asError (time: DateTimeOffset) status message path =
         { Message = message
-          Status = statusCode
-          Error = ReasonPhrases.GetReasonPhrase(statusCode)
+          Status = status
+          Error = ReasonPhrases.GetReasonPhrase(status)
           Path = path
           Timestamp = time.ToString("yyyy-MM-ddTHH:mm:ssK") }
 
-    let error time statusCode message path =
-        let err = asError time statusCode message path
-        setStatusCode statusCode >=> (negotiate err)
+    let error time status message path =
+        let err = asError time status message path
+        setStatusCode status >=> (negotiate err)
