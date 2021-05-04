@@ -44,7 +44,7 @@ module TrainPlanService =
     module Events =
 
         type Event =
-            | TrainPlanAdded of TrainPlan
+            | TrainPlanRegistered of TrainPlan
             | TrainPlanCancelled of TrainPlanCancellation
             | SeatsAllocated of Allocation
             | SeatsDeallocated of Deallocation
@@ -98,7 +98,7 @@ module TrainPlanService =
         /// evolve state by handling events
         let private evolve (state: State) (event: Events.Event) =
             match event with
-            | Events.TrainPlanAdded plan -> state.EvolveTrainPlan plan
+            | Events.TrainPlanRegistered plan -> state.EvolveTrainPlan plan
             | Events.TrainPlanCancelled _ -> state.ClearTrainPlan()
             | Events.SeatsAllocated allocated -> state.EvolveAllocation allocated
             | Events.SeatsDeallocated deallocated -> state.EvolveDeallocation deallocated
@@ -119,7 +119,7 @@ module TrainPlanService =
             let current = state.ToTrainPlan plan.TrainId
             let registered = registerPlan plan current
 
-            [ Events.TrainPlanAdded registered ]
+            [ Events.TrainPlanRegistered registered ]
         | CancelTrainPlan plan ->
             let current = state.ToTrainPlan plan.TrainId
             let deallocated = current |> cancelAllAllocationsForPlan |> List.map Events.SeatsDeallocated
