@@ -17,38 +17,38 @@
         <Tailcalls>true</Tailcalls>
     </PropertyGroup>
     <ItemGroup>
-        <PackageReference Include="Equinox.MemoryStore" Version="2.5.1"/>
-        <PackageReference Include="FsCodec.NewtonsoftJson" Version="2.1.1"/>
-        <PackageReference Include="TypeShape" Version="9.0.0"/>
-        <PackageReference Include="Giraffe" Version="4.1.0"/>
-        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3"/>
-        <PackageReference Include="Thoth.Json.Net" Version="5.0.0"/>
+        <PackageReference Include="Equinox.MemoryStore" Version="2.5.1" />
+        <PackageReference Include="FsCodec.NewtonsoftJson" Version="2.1.1" />
+        <PackageReference Include="TypeShape" Version="9.0.0" />
+        <PackageReference Include="Giraffe" Version="4.1.0" />
+        <PackageReference Include="Microsoft.NET.Test.Sdk" Version="16.8.3" />
+        <PackageReference Include="Thoth.Json.Net" Version="5.0.0" />
     </ItemGroup>
     <ItemGroup>
-        <Compile Include="Utils.fs"/>
-        <Compile Include="Types.fs"/>
-        <Compile Include="ListUtil.fs"/>
-        <Compile Include="AssemblyInfo.fs"/>
-        <Compile Include="TimeProvider.fs"/>
-        <Compile Include="ApiTypes.fs"/>
-        <Compile Include="Availability.fs"/>
-        <Compile Include="Allocation.fs"/>
-        <Compile Include="BookingService.Adapter.fs"/>
-        <Compile Include="TrainDataService.Adapter.fs"/>
-        <Compile Include="ReserveSeatsFlow.fs"/>
-        <Compile Include="ResetReservationFlow.fs"/>
-        <Compile Include="TrainPlanService.fs"/>
-        <Compile Include="TicketOffice.Controller.fs"/>
-        <Compile Include="Root.fs"/>
-        <Compile Include="TicketOffice.WebApp.fs"/>
-        <Compile Include="Program.fs"/>
+        <Compile Include="Utils.fs" />
+        <Compile Include="ListUtil.fs" />
+        <Compile Include="TimeProvider.fs" />
+        <Compile Include="Types.fs" />
+        <Compile Include="ApiTypes.fs" />
+        <Compile Include="Availability.fs" />
+        <Compile Include="Allocation.fs" />
+        <Compile Include="BookingService.Adapter.fs" />
+        <Compile Include="TrainDataService.Adapter.fs" />
+        <Compile Include="ReserveSeatsFlow.fs" />
+        <Compile Include="ResetReservationFlow.fs" />
+        <Compile Include="TrainPlanService.fs" />
+        <Compile Include="TicketOffice.Controller.fs" />
+        <Compile Include="Root.fs" />
+        <Compile Include="TicketOffice.WebApp.fs" />
+        <Compile Include="AssemblyInfo.fs" />
+        <Compile Include="Program.fs" />
     </ItemGroup>
     <ItemGroup>
         <Content Include="data\trains.json">
             <CopyToOutputDirectory>Always</CopyToOutputDirectory>
         </Content>
-        <Content Include="TODO.md"/>
-        <Content Include="EventSourcing.md"/>
+        <Content Include="TODO.md" />
+        <Content Include="EventSourcing.md" />
     </ItemGroup>
-    <Import Project="..\..\.paket\Paket.Restore.targets"/>
+    <Import Project="..\..\.paket\Paket.Restore.targets" />
 </Project>
